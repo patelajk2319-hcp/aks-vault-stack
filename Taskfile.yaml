@@ -1,0 +1,141 @@
+# =============================================================================
+# Taskfile for AKS Vault Stack
+# Task automation for deploying and managing Vault on Azure AKS
+#
+# Usage:
+#   Deployment workflow:
+#     task infra   - Deploy AKS infrastructure (aliases: aks, k8s)
+#     task up      - Deploy Vault to AKS
+#     task init    - Initialise Vault
+#     task unseal  - Unseal Vault and start port forwarding
+#     task vso     - Deploy Vault Secrets Operator (optional)
+#
+#   Cleanup:
+#     task rm      - Clear cluster (VSO, Vault) - keeps AKS running
+#     task nuke    - Destroy ALL infrastructure including AKS
+# =============================================================================
+
+version: '3'
+
+vars:
+  NAMESPACE: vault
+  VAULT_POD: vault-0
+
+tasks:
+  # ---------------------------------------------------------------------------
+  # Main Deployment Tasks
+  # ---------------------------------------------------------------------------
+
+  infra:
+    desc: Deploy AKS infrastructure
+    aliases: [aks, k8s]
+    cmds:
+      - ./scripts/10_deploy_aks.sh
+
+  up:
+    desc: Deploy Vault to AKS cluster
+    cmds:
+      - ./scripts/20_deploy_vault.sh
+
+  init:
+    desc: Initialize Vault (creates root token and unseal keys)
+    cmds:
+      - NAMESPACE={{.NAMESPACE}} VAULT_POD={{.VAULT_POD}} ./scripts/30_vault_init.sh
+
+  unseal:
+    desc: Unseal Vault and start port forwarding
+    cmds:
+      - NAMESPACE={{.NAMESPACE}} ./scripts/40_vault_unseal.sh
+
+  vso:
+    desc: Deploy Vault Secrets Operator (run after Vault is initialized)
+    cmds:
+      - NAMESPACE={{.NAMESPACE}} ./scripts/50_deploy_vso.sh
+
+  # ---------------------------------------------------------------------------
+  # Utility Tasks
+  # ---------------------------------------------------------------------------
+
+  status:
+    desc: Check status of Vault pods
+    cmds:
+      - kubectl get pods -n {{.NAMESPACE}} -l app.kubernetes.io/name=vault
+      - echo ""
+      - echo "Checking Vault status..."
+      - kubectl exec -n {{.NAMESPACE}} {{.VAULT_POD}} -- vault status || true
+
+  logs:
+    desc: View Vault logs
+    cmds:
+      - kubectl logs -n {{.NAMESPACE}} -l app.kubernetes.io/name=vault --tail=100 -f
+
+  vso-logs:
+    desc: View VSO logs
+    cmds:
+      - kubectl logs -n {{.NAMESPACE}} -l app.kubernetes.io/name=vault-secrets-operator --tail=100 -f
+
+  port-forward:
+    desc: Start port forwarding to Vault
+    cmds:
+      - NAMESPACE={{.NAMESPACE}} ./scripts/tools/port_forwarding.sh
+
+  # ---------------------------------------------------------------------------
+  # Kubernetes Operations
+  # ---------------------------------------------------------------------------
+
+  k9s:
+    desc: Open k9s for the Vault namespace
+    cmds:
+      - k9s -n {{.NAMESPACE}}
+
+  pods:
+    desc: List all pods in Vault namespace
+    cmds:
+      - kubectl get pods -n {{.NAMESPACE}}
+
+  services:
+    desc: List all services in Vault namespace
+    cmds:
+      - kubectl get svc -n {{.NAMESPACE}}
+
+  # ---------------------------------------------------------------------------
+  # Cleanup Tasks
+  # ---------------------------------------------------------------------------
+
+  rm:
+    desc: Clear cluster resources (removes VSO and Vault, keeps AKS running)
+    aliases: [clean]
+    cmds:
+      - ./scripts/tools/clear_aks_cluster.sh
+
+  nuke:
+    desc: Destroy ALL infrastructure including AKS
+    aliases: [destroy, wipeout, purge]
+    cmds:
+      - ./scripts/tools/nuke.sh
+
+  # ---------------------------------------------------------------------------
+  # Information Tasks
+  # ---------------------------------------------------------------------------
+
+  info:
+    desc: Display connection information
+    cmds:
+      - |
+        echo "=== AKS Vault Stack Information ==="
+        echo ""
+        if [ -f .env ]; then
+          echo "Vault Address: $(grep VAULT_ADDR .env | cut -d'=' -f2)"
+          echo "Vault Token:   $(grep VAULT_TOKEN .env | cut -d'=' -f2)"
+        fi
+        echo ""
+        echo "Vault UI:      http://localhost:8200/ui"
+        echo ""
+        echo "Namespace:     {{.NAMESPACE}}"
+        echo ""
+        kubectl get pods -n {{.NAMESPACE}}
+
+  help:
+    desc: Show available tasks
+    cmds:
+      - task --list

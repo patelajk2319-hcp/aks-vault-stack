@@ -1,0 +1,71 @@
+# =============================================================================
+# HashiCorp Vault Enterprise Configuration
+# Official Helm chart values for Vault deployment
+# License will be created by Terraform from .env file
+# =============================================================================
+
+global:
+  enabled: true
+  namespace: vault
+
+server:
+  image:
+    repository: "hashicorp/vault-enterprise"
+    tag: "1.20.0-ent"
+    pullPolicy: IfNotPresent
+
+  enterpriseLicense:
+    secretName: vault-license
+    secretKey: license
+
+  # Resource limits
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: 500m
+
+  # Data storage configuration
+  dataStorage:
+    enabled: true
+    size: 10Gi
+    storageClass: null  # Use default storage class
+
+  # Audit storage (disabled - stored in data directory)
+  auditStorage:
+    enabled: false
+
+  # Single replica configuration for demo/testing
+  # HA disabled to reduce costs
+  ha:
+    enabled: false
+
+  # Standalone configuration
+  standalone:
+    enabled: true
+    config: |
+      ui = true
+
+      listener "tcp" {
+        tls_disable = 1
+        address = "[::]:8200"
+        cluster_address = "[::]:8201"
+      }
+
+      storage "file" {
+        path = "/vault/data"
+      }
+
+      telemetry {
+        disable_hostname = true
+        prometheus_retention_time = "12h"
+        unauthenticated_metrics_access = true
+      }
+
+ui:
+  enabled: true
+
+injector:
+  enabled: false

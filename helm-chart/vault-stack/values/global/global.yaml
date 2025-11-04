@@ -1,0 +1,6 @@
+# =============================================================================
+# Global Settings for Vault Stack
+# Namespace will be overridden by Terraform
+# =============================================================================
+global:
+  namespace: vault
