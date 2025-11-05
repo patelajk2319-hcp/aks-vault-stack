@@ -4,11 +4,12 @@
 #
 # Usage:
 #   Deployment workflow:
-#     task infra   - Deploy AKS infrastructure (aliases: aks, k8s)
-#     task up      - Deploy Vault to AKS
-#     task init    - Initialise Vault
-#     task unseal  - Unseal Vault and start port forwarding
-#     task vso     - Deploy Vault Secrets Operator (optional)
+#     task infra        - Deploy AKS infrastructure (aliases: aks, k8s)
+#     task up           - Deploy Vault to AKS
+#     task port-forward - Start port forwarding to Vault
+#     task init         - Initialise Vault
+#     task unseal       - Unseal Vault
+#     task vso          - Deploy Vault Secrets Operator (optional)
 #
 #   Cleanup:
 #     task rm      - Clear cluster (VSO, Vault) - keeps AKS running
@@ -37,20 +38,27 @@ tasks:
     cmds:
       - ./scripts/20_deploy_vault.sh
 
-  init:
-    desc: Initialize Vault (creates root token and unseal keys)
+  port-forward:
+    aliases: [fwd, forward]
+    desc: Start port forwarding to Vault
     cmds:
-      - NAMESPACE={{.NAMESPACE}} VAULT_POD={{.VAULT_POD}} ./scripts/30_vault_init.sh
+      - NAMESPACE={{.NAMESPACE}} ./scripts/30_port_forwarding.sh
 
-  unseal:
-    desc: Unseal Vault and start port forwarding
+  init:
+    desc: Initialise Vault, unseal, and set up port forwarding
     cmds:
-      - NAMESPACE={{.NAMESPACE}} ./scripts/40_vault_unseal.sh
+      - NAMESPACE={{.NAMESPACE}} VAULT_POD={{.VAULT_POD}} ./scripts/40_vault_init.sh
+      
+  unseal:
+    desc: Unseal Vault and set up port forwarding (use after pod restarts)
+    cmds:
+      - NAMESPACE={{.NAMESPACE}} ./scripts/50_vault_unseal.sh
+      - NAMESPACE={{.NAMESPACE}} ./scripts/30_port_forwarding.sh
 
   vso:
-    desc: Deploy Vault Secrets Operator (run after Vault is initialized)
+    desc: Deploy Vault Secrets Operator (run after Vault is initialised)
     cmds:
-      - NAMESPACE={{.NAMESPACE}} ./scripts/50_deploy_vso.sh
+      - NAMESPACE={{.NAMESPACE}} ./scripts/60_deploy_vso.sh
 
   # ---------------------------------------------------------------------------
   # Utility Tasks
@@ -73,11 +81,6 @@ tasks:
     desc: View VSO logs
     cmds:
       - kubectl logs -n {{.NAMESPACE}} -l app.kubernetes.io/name=vault-secrets-operator --tail=100 -f
-
-  port-forward:
-    desc: Start port forwarding to Vault
-    cmds:
-      - NAMESPACE={{.NAMESPACE}} ./scripts/tools/port_forwarding.sh
 
   # ---------------------------------------------------------------------------
   # Kubernetes Operations

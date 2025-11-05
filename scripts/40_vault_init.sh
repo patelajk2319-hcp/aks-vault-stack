@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # =============================================================================
-# Initialize Vault
-# This script checks if Vault is already initialized, initializes it with a
+# Initialise Vault
+# This script checks if Vault is already initialised, initialises it with a
 # single key, and saves credentials to .env and vault-init.json
 # =============================================================================
 
@@ -25,22 +25,22 @@ if ! kubectl get pod -n "$NAMESPACE" "$VAULT_POD" &>/dev/null; then
   echo -e "${GREEN}Found Vault pod: $VAULT_POD${NC}"
 fi
 
-echo -e "${BLUE}=== Initializing Vault ===${NC}"
+echo -e "${BLUE}=== Initialising Vault ===${NC}"
 echo ""
 
-# Check if Vault is already initialized
+# Check if Vault is already initialised
 STATUS=$(kubectl exec -n "$NAMESPACE" "$VAULT_POD" -- vault status -format=json 2>&1 || echo '{"initialized":false}')
 INITIALIZED=$(echo "$STATUS" | grep -o '"initialized":[^,]*' | cut -d':' -f2)
 
 if [ "$INITIALIZED" = "true" ]; then
-  echo -e "${YELLOW}Vault is already initialized${NC}"
+  echo -e "${YELLOW}Vault is already initialised${NC}"
   echo "Vault details are in vault-init.json and .env"
-  echo "If you want to re-initialize, run 'task clean' first"
+  echo "If you want to re-initialise, run 'task clean' first"
   exit 1
 fi
 
-# Initialize Vault with single key
-echo -e "${BLUE}Initializing Vault...${NC}"
+# Initialise Vault with single key
+echo -e "${BLUE}Initialising Vault...${NC}"
 kubectl exec -n "$NAMESPACE" "$VAULT_POD" -- \
   vault operator init \
   -key-shares=1 \
@@ -48,7 +48,7 @@ kubectl exec -n "$NAMESPACE" "$VAULT_POD" -- \
   -format=json > vault-init.json
 
 echo ""
-echo -e "${GREEN}✓ Vault initialized successfully${NC}"
+echo -e "${GREEN}✓ Vault initialised successfully${NC}"
 echo ""
 echo -e "${GREEN}Vault Credentials:${NC}"
 cat vault-init.json | jq -r '"Root Token: " + .root_token'
@@ -115,12 +115,4 @@ done
 
 echo ""
 echo -e "${GREEN}=== Vault Initialization Complete! ===${NC}"
-echo ""
-echo -e "${YELLOW}Important:${NC}"
-echo -e "  • Credentials saved to: ${BLUE}vault-init.json${NC}"
-echo -e "  • Root token saved to: ${BLUE}.env${NC}"
-echo -e "  • ${RED}Keep these files secure!${NC}"
-echo ""
-echo -e "${YELLOW}Next step:${NC}"
-echo -e "  Run ${BLUE}task unseal${NC} to start port forwarding and access Vault UI"
 echo ""

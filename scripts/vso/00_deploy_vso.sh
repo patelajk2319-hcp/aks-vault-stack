@@ -3,7 +3,7 @@
 # =============================================================================
 # Deploy Vault Secrets Operator
 # This script deploys VSO to the AKS cluster
-# IMPORTANT: Vault must be initialized and unsealed before running this
+# IMPORTANT: Vault must be initialised and unsealed before running this
 # =============================================================================
 
 set -e
@@ -16,10 +16,10 @@ NAMESPACE="${NAMESPACE:-vault}"
 echo -e "${BLUE}=== Deploying Vault Secrets Operator ===${NC}"
 echo ""
 
-# Check if Vault is initialized
+# Check if Vault is initialised
 if [ ! -f vault-init.json ]; then
   echo -e "${RED}Error: vault-init.json not found${NC}"
-  echo "Run 'task init' first to initialize Vault"
+  echo "Run 'task init' first to initialise Vault"
   exit 1
 fi
 
@@ -79,11 +79,4 @@ kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=vault-secrets-o
 
 echo ""
 echo -e "${GREEN}=== VSO Deployment Complete! ===${NC}"
-echo ""
-echo -e "${YELLOW}Next steps:${NC}"
-echo -e "  1. Enable Kubernetes auth in Vault: ${BLUE}task enable-k8s-auth${NC}"
-echo -e "  2. Create VaultAuth, VaultStaticSecret, or VaultDynamicSecret resources"
-echo ""
-echo -e "${YELLOW}Documentation:${NC}"
-echo -e "  VSO: https://github.com/hashicorp/vault-secrets-operator"
 echo ""

@@ -16,10 +16,10 @@ NAMESPACE="${NAMESPACE:-vault}"
 echo -e "${BLUE}=== Unsealing Vault ===${NC}"
 echo ""
 
-# Check if Vault is initialized
+# Check if Vault is initialised
 if [ ! -f vault-init.json ]; then
   echo -e "${RED}Error: vault-init.json not found${NC}"
-  echo "Run 'task init' first to initialize Vault"
+  echo "Run 'task init' first to initialise Vault"
   exit 1
 fi
 
@@ -56,7 +56,3 @@ done
 echo ""
 echo -e "${GREEN}=== All Vault replicas unsealed! ===${NC}"
 echo ""
-
-# Start port forwarding
-echo -e "${BLUE}Starting port forwarding to Vault...${NC}"
-./scripts/tools/port_forwarding.sh

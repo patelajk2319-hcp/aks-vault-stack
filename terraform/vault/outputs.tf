@@ -50,7 +50,7 @@ output "vault_chart_version" {
 # -----------------------------------------------------------------------------
 
 output "vault_init_command" {
-  description = "Command to initialize Vault (run after deployment)"
+  description = "Command to initialise Vault (run after deployment)"
   value       = "kubectl exec -n ${kubernetes_namespace.vault.metadata[0].name} ${helm_release.vault.name}-0 -- vault operator init"
 }
 
@@ -62,18 +62,4 @@ output "vault_status_command" {
 output "port_forward_command" {
   description = "Command to access Vault UI via port forwarding"
   value       = "kubectl port-forward -n ${kubernetes_namespace.vault.metadata[0].name} svc/${helm_release.vault.name} 8200:8200"
-}
-
-output "next_steps" {
-  description = "Instructions for initializing and unsealing Vault"
-  value       = <<-EOT
-    Vault has been deployed successfully!
-
-    Next steps:
-      1. Run 'task init' to initialize Vault
-      2. Run 'task unseal' to unseal Vault and start port forwarding
-      3. Run 'task vso' to deploy Vault Secrets Operator (after Vault is initialized)
-
-    Access Vault UI at: http://localhost:8200/ui
-  EOT
 }

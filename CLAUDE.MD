@@ -30,8 +30,9 @@
 1. `task rm` - Remove the entire stack (clears cluster resources, keeps AKS)
 2. `task infra` - Deploys the Azure infrastructure including AKS
 3. `task up` - Deploys Vault Enterprise onto AKS
-4. `task init` - Initialise Vault
-5. `task unseal` - Unseal Vault
+4. `task port-forward` - Start port forwarding to Vault
+5. `task init` - Initialise Vault
+6. `task unseal` - Unseal Vault
 
 
 ## Infrastructure Standards

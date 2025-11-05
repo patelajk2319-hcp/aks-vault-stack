@@ -8,7 +8,7 @@
 set -e
 
 # Source centralised colour configuration
-source "$(dirname "$0")/../lib/colors.sh"
+source "$(dirname "$0")/lib/colors.sh"
 
 NAMESPACE="${NAMESPACE:-vault}"
 
