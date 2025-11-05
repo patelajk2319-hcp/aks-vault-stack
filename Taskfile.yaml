@@ -59,6 +59,7 @@ tasks:
     desc: Initialise Vault, unseal, and set up port forwarding
     cmds:
       - NAMESPACE={{.NAMESPACE}} VAULT_POD={{.VAULT_POD}} ./scripts/40_vault_init.sh
+      - NAMESPACE={{.NAMESPACE}} ./scripts/30_port_forwarding.sh
 
   unseal:
     desc: Unseal Vault and set up port forwarding (use after pod restarts)
@@ -130,7 +131,7 @@ tasks:
 
   nuke:
     desc: Destroy ALL infrastructure including AKS
-    aliases: [destroy, wipeout, purge]
+    aliases: [destroy, wipeout, purge, kill]
     cmds:
       - ./scripts/tools/nuke.sh
 

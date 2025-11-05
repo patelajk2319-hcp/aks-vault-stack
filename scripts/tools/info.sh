@@ -15,6 +15,10 @@ SECRET_NAME="postgres-dynamic-creds"
 
 echo -e "${BLUE}=== Dynamic PostgreSQL Credentials ===${NC}"
 echo ""
+echo -e "${BLUE}Time Run:${NC}"
+echo "---------"
+echo "$(date '+%d %b %Y - %H:%M:%S')"
+echo ""
 
 # -----------------------------------------------------------------------------
 # Check if secret exists
@@ -69,7 +73,16 @@ echo ""
 echo -e "${BLUE}Credential Metadata:${NC}"
 
 CREATION_TIME=$(kubectl get secret "$SECRET_NAME" -n "$NAMESPACE" -o jsonpath='{.metadata.creationTimestamp}')
-LAST_REFRESH=$(kubectl get secret "$SECRET_NAME" -n "$NAMESPACE" -o jsonpath='{.metadata.annotations.vso\.secrets\.hashicorp\.com/last-refresh}' 2>/dev/null || echo "N/A")
+
+# Get last renewal time from VaultDynamicSecret status (Unix timestamp)
+LAST_RENEWAL_TIMESTAMP=$(kubectl get vaultdynamicsecret postgres-dynamic-creds -n "$NAMESPACE" -o jsonpath='{.status.lastRenewalTime}' 2>/dev/null)
+
+if [ -n "$LAST_RENEWAL_TIMESTAMP" ]; then
+  # Convert Unix timestamp to human-readable format
+  LAST_REFRESH=$(date -r "$LAST_RENEWAL_TIMESTAMP" '+%Y-%m-%d %H:%M:%S %Z' 2>/dev/null || echo "N/A")
+else
+  LAST_REFRESH="N/A"
+fi
 
 echo "  Created: ${CREATION_TIME}"
 echo "  Last Refresh: ${LAST_REFRESH}"
