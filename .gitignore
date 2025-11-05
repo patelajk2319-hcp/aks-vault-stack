@@ -16,8 +16,7 @@ fleet-tokens/
 *.tfstate
 *.tfstate.*
 .terraform.lock.hcl
-terraform/vault/terraform.tfvars
-terraform/vso/terraform.tfvars
+*.tfvars
 
 # Helm
 helm-chart/**/charts/

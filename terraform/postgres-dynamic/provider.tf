@@ -17,6 +17,13 @@ terraform {
       source  = "hashicorp/vault"
       version = "~> 4.0"
     }
+    # Official Kubernetes provider from HashiCorp
+    # Source: https://registry.terraform.io/providers/hashicorp/kubernetes
+    # Published by: HashiCorp (official Kubernetes provider)
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.23"
+    }
   }
 }
 
@@ -32,4 +39,14 @@ provider "vault" {
   # export VAULT_TOKEN=<root_token>
   #
   # These are set automatically in .env by the vault init script
+}
+
+# -----------------------------------------------------------------------------
+# Kubernetes Provider
+# Uses default kubeconfig discovery (~/.kube/config)
+# Kubeconfig is configured by: az aks get-credentials --admin
+# -----------------------------------------------------------------------------
+provider "kubernetes" {
+  config_path    = "~/.kube/config"
+  config_context = "aks-vault-cluster-admin"
 }
