@@ -27,19 +27,29 @@
 
 **ALWAYS run these commands in order for ANY deployment or infrastructure change:**
 
-1. `task rm` - Remove the entire stack (clears cluster resources, keeps AKS)
-2. `task infra` - Deploys the Azure infrastructure including AKS
+1. `task rm` - Remove the entire stack (clears cluster resources, keeps core infrastructure)
+2. `task infra` - Deploys core infrastructure (AKS + PostgreSQL)
 3. `task up` - Deploys Vault Enterprise onto AKS
-4. `task port-forward` - Start port forwarding to Vault
-5. `task init` - Initialise Vault
-6. `task unseal` - Unseal Vault
+4. `task init` - Initialise Vault, unseal, and set up port forwarding
+5. `task vso` - Deploy Vault Secrets Operator
+6. `task postgres-dynamic` (or `task dynamic`) - Configure Vault for dynamic PostgreSQL credentials
+7. `task info` - Display connection information and dynamic credentials from K8s secrets
 
+## Azure Infrastructure Standards
+
+### Regional Deployment:
+- **ALL Azure infrastructure MUST be deployed to UK South region**
+- Set `location = "uksouth"` for all Azure resources
+- Verify region in resource group, AKS, PostgreSQL, and all other Azure services
+- No exceptions unless explicitly approved by the user
 
 ## Infrastructure Standards
 
 ### Terraform Requirements:
 - **ONLY use official Terraform providers** (published by HashiCorp or the vendor themselves)
 - **NEVER use community providers**
+- **NEVER use heredoc syntax (`<<-EOT`, `<<EOF`, etc.) anywhere in Terraform code**
+- **For kubectl_manifest resources, ALWAYS use `yamlencode()` function**
 - Follow Terraform best practices at all times
 - Use proper state management
 - Use modules for clear separation of concerns
@@ -60,8 +70,14 @@
 - Use namespaces appropriately
 - Implement proper RBAC
 - All K8s manifests must be part of the automation
+- **For Terraform kubectl_manifest resources, use `yamlencode()` to define YAML content**
+- **NEVER use heredoc strings for Kubernetes manifests**
 
 ## Vault Configuration:
 - Vault initialisation and unsealing are critical final steps
 - Never skip these steps after deployment
 - Document any Vault configuration changes in the automation code
+- **ALWAYS use vault_policy_document data sources for Vault policies**
+- **NEVER use heredoc strings for policy definitions**
+- All policies must be defined in a separate policies.tf file
+- Use JWT authentication method for Vault Secrets Operator (HashiCorp recommendation)

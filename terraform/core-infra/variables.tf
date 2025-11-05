@@ -29,7 +29,7 @@ variable "resource_group_name" {
 variable "location" {
   description = "The Azure region where resources will be created"
   type        = string
-  default     = "eastus"
+  default     = "uksouth"
 }
 
 variable "cluster_name" {
@@ -181,4 +181,27 @@ variable "tags" {
     project     = "aks-vault-stack"
     managed_by  = "terraform"
   }
+}
+
+# =============================================================================
+# PostgreSQL Configuration
+# Settings for Azure Database for PostgreSQL Flexible Server
+# =============================================================================
+
+variable "postgres_admin_username" {
+  description = "Administrator username for PostgreSQL"
+  type        = string
+  default     = "pgadmin"
+}
+
+variable "postgres_admin_password" {
+  description = "Administrator password for PostgreSQL"
+  type        = string
+  sensitive   = true
+}
+
+variable "postgres_database_name" {
+  description = "Name of the application database"
+  type        = string
+  default     = "postgres-vault-database"
 }

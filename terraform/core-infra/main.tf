@@ -63,3 +63,23 @@ module "aks" {
 
   tags = var.tags
 }
+
+# -----------------------------------------------------------------------------
+# PostgreSQL Database
+# Azure Database for PostgreSQL Flexible Server for dynamic credentials demo
+# -----------------------------------------------------------------------------
+module "postgresql" {
+  source = "./modules/postgresql"
+
+  server_name               = "${var.cluster_name}-pg"
+  resource_group_name       = azurerm_resource_group.aks_rg.name
+  location                  = azurerm_resource_group.aks_rg.location
+  admin_username            = var.postgres_admin_username
+  admin_password            = var.postgres_admin_password
+  database_name             = var.postgres_database_name
+  aks_subnet_address_prefix = var.aks_subnet_address_prefix
+  tags                      = var.tags
+
+  depends_on = [module.vnet]
+  
+}

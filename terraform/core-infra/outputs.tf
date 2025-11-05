@@ -93,3 +93,34 @@ output "get_credentials_command" {
   description = "Command to get AKS credentials"
   value       = "az aks get-credentials --resource-group ${azurerm_resource_group.aks_rg.name} --name ${module.aks.aks_cluster_name}"
 }
+
+# -----------------------------------------------------------------------------
+# PostgreSQL Outputs
+# -----------------------------------------------------------------------------
+
+output "postgres_server_name" {
+  description = "Name of the PostgreSQL server"
+  value       = module.postgresql.server_name
+}
+
+output "postgres_server_fqdn" {
+  description = "Fully qualified domain name of the PostgreSQL server"
+  value       = module.postgresql.server_fqdn
+}
+
+output "postgres_database_name" {
+  description = "Name of the application database"
+  value       = module.postgresql.database_name
+}
+
+output "postgres_admin_username" {
+  description = "Administrator username for PostgreSQL"
+  value       = module.postgresql.admin_username
+  sensitive   = true
+}
+
+output "postgres_connection_string" {
+  description = "PostgreSQL connection string"
+  value       = module.postgresql.connection_string
+  sensitive   = true
+}

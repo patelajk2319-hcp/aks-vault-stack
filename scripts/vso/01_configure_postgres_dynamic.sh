@@ -1,0 +1,115 @@
+#!/bin/bash
+
+# =============================================================================
+# Configure Vault for Dynamic PostgreSQL Credentials
+# Sets up JWT auth and PostgreSQL secrets engine
+# IMPORTANT: Vault must be initialised and unsealed before running this
+# =============================================================================
+
+set -e
+
+# Source centralised colour configuration
+source "$(dirname "$0")/../lib/colors.sh"
+
+NAMESPACE="${NAMESPACE:-vault}"
+
+echo -e "${BLUE}=== Configuring Vault for Dynamic PostgreSQL Credentials ===${NC}"
+echo ""
+
+# -----------------------------------------------------------------------------
+# Check prerequisites
+# -----------------------------------------------------------------------------
+echo -e "${BLUE}Checking prerequisites...${NC}"
+
+# Check if Vault is initialised
+if [ ! -f vault-init.json ]; then
+  echo -e "${RED}Error: vault-init.json not found${NC}"
+  echo "Run 'task init' first to initialise Vault"
+  exit 1
+fi
+
+# Check if .env exists
+if [ ! -f .env ]; then
+  echo -e "${RED}Error: .env file not found${NC}"
+  echo "Run 'task init' first to create .env with Vault credentials"
+  exit 1
+fi
+
+# Source .env to get Vault credentials
+source .env
+
+# Check if Vault is accessible
+if ! curl -s -o /dev/null -w "%{http_code}" http://localhost:8200/v1/sys/health | grep -q "200\|429"; then
+  echo -e "${RED}Error: Cannot connect to Vault at http://localhost:8200${NC}"
+  echo "Ensure port forwarding is active: task port-forward"
+  exit 1
+fi
+
+echo -e "${GREEN}✓ Prerequisites met${NC}"
+echo ""
+
+# -----------------------------------------------------------------------------
+# Get AKS cluster information
+# -----------------------------------------------------------------------------
+echo -e "${BLUE}Retrieving AKS cluster information...${NC}"
+cd "$(dirname "$0")/../../terraform/core-infra"
+
+OIDC_ISSUER_URL=$(terraform output -raw aks_oidc_issuer_url)
+POSTGRES_SERVER_FQDN=$(terraform output -raw postgres_server_fqdn)
+POSTGRES_DATABASE=$(terraform output -raw postgres_database_name)
+POSTGRES_ADMIN_USER=$(terraform output -raw postgres_admin_username)
+
+echo -e "${GREEN}✓ Cluster information retrieved${NC}"
+echo ""
+
+# -----------------------------------------------------------------------------
+# Build PostgreSQL connection URL
+# -----------------------------------------------------------------------------
+if [ -z "$POSTGRES_ADMIN_PASSWORD" ]; then
+  echo -e "${RED}Error: POSTGRES_ADMIN_PASSWORD not set in .env${NC}"
+  exit 1
+fi
+
+POSTGRES_CONNECTION_URL="postgresql://${POSTGRES_ADMIN_USER}:${POSTGRES_ADMIN_PASSWORD}@${POSTGRES_SERVER_FQDN}:5432/${POSTGRES_DATABASE}?sslmode=require"
+
+# -----------------------------------------------------------------------------
+# Configure Vault using Terraform
+# -----------------------------------------------------------------------------
+echo -e "${BLUE}Configuring Vault JWT auth and secrets engines...${NC}"
+cd "$(dirname "$0")/../../terraform/postgres-dynamic"
+
+# Create terraform.tfvars
+cat > terraform.tfvars <<EOF
+# Vault Configuration
+namespace           = "$NAMESPACE"
+oidc_issuer_url     = "$OIDC_ISSUER_URL"
+postgres_connection_url = "$POSTGRES_CONNECTION_URL"
+EOF
+
+# Initialise Terraform
+echo -e "${BLUE}Initialising Terraform (PostgreSQL Dynamic Credentials)...${NC}"
+terraform init -upgrade
+
+# Apply Terraform configuration
+echo -e "${BLUE}Applying Terraform configuration...${NC}"
+terraform apply -auto-approve
+
+echo ""
+echo -e "${GREEN}✓ Vault configured successfully${NC}"
+echo ""
+
+# -----------------------------------------------------------------------------
+# Display configuration summary
+# -----------------------------------------------------------------------------
+echo -e "${BLUE}Configuration Summary:${NC}"
+echo "  JWT auth path: $(terraform output -raw jwt_auth_path)"
+echo "  Database mount path: $(terraform output -raw database_mount_path)"
+echo "  Database role: $(terraform output -raw database_role_name)"
+echo "  VSO role: $(terraform output -raw vso_role_name)"
+echo ""
+echo -e "${YELLOW}Dynamic credentials path: ${BLUE}$(terraform output -raw dynamic_creds_path)${NC}"
+echo ""
+
+echo ""
+echo -e "${GREEN}=== Vault Configuration Complete! ===${NC}"
+echo ""

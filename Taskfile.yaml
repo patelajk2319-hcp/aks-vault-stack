@@ -28,10 +28,10 @@ tasks:
   # ---------------------------------------------------------------------------
 
   infra:
-    desc: Deploy AKS infrastructure
+    desc: Deploy core infrastructure (AKS + PostgreSQL)
     aliases: [core]
     cmds:
-      - ./scripts/10_deploy_aks.sh
+      - ./scripts/10_deploy_core_infra.sh
 
   vault:
     aliases: [up]
@@ -60,6 +60,12 @@ tasks:
     desc: Deploy Vault Secrets Operator (run after Vault is initialised)
     cmds:
       - NAMESPACE={{.NAMESPACE}} ./scripts/vso/00_deploy_vso.sh
+
+  postgres-dynamic:
+    desc: Configure Vault for dynamic PostgreSQL credentials (run after VSO is deployed)
+    aliases: [dynamic]
+    cmds:
+      - NAMESPACE={{.NAMESPACE}} ./scripts/vso/01_configure_postgres_dynamic.sh
 
   # ---------------------------------------------------------------------------
   # Utility Tasks
@@ -123,21 +129,9 @@ tasks:
   # ---------------------------------------------------------------------------
 
   info:
-    desc: Display connection information
+    desc: Display connection information and dynamic credentials
     cmds:
-      - |
-        echo "=== AKS Vault Stack Information ==="
-        echo ""
-        if [ -f .env ]; then
-          echo "Vault Address: $(grep VAULT_ADDR .env | cut -d'=' -f2)"
-          echo "Vault Token:   $(grep VAULT_TOKEN .env | cut -d'=' -f2)"
-        fi
-        echo ""
-        echo "Vault UI:      http://localhost:8200/ui"
-        echo ""
-        echo "Namespace:     {{.NAMESPACE}}"
-        echo ""
-        kubectl get pods -n {{.NAMESPACE}}
+      - NAMESPACE={{.NAMESPACE}} ./scripts/tools/info.sh
 
   help:
     desc: Show available tasks

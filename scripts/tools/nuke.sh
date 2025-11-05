@@ -30,10 +30,10 @@ echo -e "${GREEN}✓ Cluster resources cleared${NC}"
 echo ""
 
 # -----------------------------------------------------------------------------
-# Step 2: Destroy AKS Infrastructure
+# Step 2: Destroy Core Infrastructure (AKS + PostgreSQL)
 # -----------------------------------------------------------------------------
-echo -e "${BLUE}Step 2: Destroying AKS infrastructure...${NC}"
-cd "$(dirname "$0")/../../terraform/aks"
+echo -e "${BLUE}Step 2: Destroying core infrastructure (AKS + PostgreSQL)...${NC}"
+cd "$(dirname "$0")/../../terraform/core-infra"
 
 AKS_DESTROY_SUCCESS=false
 if [ -f "terraform.tfstate" ] || [ -f ".terraform/terraform.tfstate" ]; then
@@ -46,6 +46,7 @@ if [ -f "terraform.tfstate" ] || [ -f ".terraform/terraform.tfstate" ]; then
     # Export Terraform variables
     export TF_VAR_subscription_id="$ARM_SUBSCRIPTION_ID"
     export TF_VAR_tenant_id="$ARM_TENANT_ID"
+    export TF_VAR_postgres_admin_password="$POSTGRES_ADMIN_PASSWORD"
   fi
 
   terraform init -upgrade 2>/dev/null || true
@@ -62,24 +63,24 @@ fi
 echo ""
 
 # -----------------------------------------------------------------------------
-# Step 3: Clean up remaining AKS files
+# Step 3: Clean up remaining core infrastructure files
 # -----------------------------------------------------------------------------
 echo -e "${BLUE}Step 3: Cleaning up remaining local files...${NC}"
 cd "$(dirname "$0")/../.."
 
 # Remove terraform.tfvars files
-rm -f terraform/aks/terraform.tfvars
-echo -e "${GREEN}  - Removed AKS terraform.tfvars${NC}"
+rm -f terraform/core-infra/terraform.tfvars
+echo -e "${GREEN}  - Removed core-infra terraform.tfvars${NC}"
 
 # Remove terraform lock files
-rm -f terraform/aks/.terraform.lock.hcl
-echo -e "${GREEN}  - Removed AKS terraform lock files${NC}"
+rm -f terraform/core-infra/.terraform.lock.hcl
+echo -e "${GREEN}  - Removed core-infra terraform lock files${NC}"
 
 # Remove .terraform directories and state files only if destroy was successful
 if [ "$AKS_DESTROY_SUCCESS" = true ]; then
-  rm -rf terraform/aks/.terraform
-  rm -f terraform/aks/terraform.tfstate*
-  echo -e "${GREEN}  - Removed AKS .terraform directory and state files${NC}"
+  rm -rf terraform/core-infra/.terraform
+  rm -f terraform/core-infra/terraform.tfstate*
+  echo -e "${GREEN}  - Removed core-infra .terraform directory and state files${NC}"
 fi
 
 echo ""
