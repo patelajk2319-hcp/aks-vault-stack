@@ -29,15 +29,16 @@ tasks:
 
   infra:
     desc: Deploy AKS infrastructure
-    aliases: [aks, k8s]
+    aliases: [core]
     cmds:
       - ./scripts/10_deploy_aks.sh
 
-  up:
+  vault:
+    aliases: [up]
     desc: Deploy Vault to AKS cluster
     cmds:
       - ./scripts/20_deploy_vault.sh
-
+      
   port-forward:
     aliases: [fwd, forward]
     desc: Start port forwarding to Vault
@@ -48,7 +49,7 @@ tasks:
     desc: Initialise Vault, unseal, and set up port forwarding
     cmds:
       - NAMESPACE={{.NAMESPACE}} VAULT_POD={{.VAULT_POD}} ./scripts/40_vault_init.sh
-      
+
   unseal:
     desc: Unseal Vault and set up port forwarding (use after pod restarts)
     cmds:
@@ -58,7 +59,7 @@ tasks:
   vso:
     desc: Deploy Vault Secrets Operator (run after Vault is initialised)
     cmds:
-      - NAMESPACE={{.NAMESPACE}} ./scripts/60_deploy_vso.sh
+      - NAMESPACE={{.NAMESPACE}} ./scripts/vso/00_deploy_vso.sh
 
   # ---------------------------------------------------------------------------
   # Utility Tasks

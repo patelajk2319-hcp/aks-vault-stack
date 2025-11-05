@@ -9,7 +9,7 @@
 set -e
 
 # Source centralised colour configuration
-source "$(dirname "$0")/lib/colors.sh"
+source "$(dirname "$0")/../lib/colors.sh"
 
 NAMESPACE="${NAMESPACE:-vault}"
 
@@ -43,9 +43,24 @@ fi
 echo -e "${GREEN}✓ Vault is unsealed and ready${NC}"
 echo ""
 
+# -----------------------------------------------------------------------------
+# Check if VSO is already deployed
+# -----------------------------------------------------------------------------
+echo -e "${BLUE}Checking if VSO is already deployed...${NC}"
+VSO_POD=$(kubectl get pods -n "$NAMESPACE" -l app.kubernetes.io/name=vault-secrets-operator -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
+
+if [ -n "$VSO_POD" ]; then
+  echo -e "${YELLOW}VSO is already deployed${NC}"
+  echo -e "${YELLOW}Pod: $VSO_POD${NC}"
+  echo ""
+  echo -e "${YELLOW}If you want to redeploy, run 'task rm' first to remove existing deployment${NC}"
+  exit 0
+fi
+
+
 # Deploy VSO
 echo -e "${BLUE}Deploying VSO to AKS...${NC}"
-cd "$(dirname "$0")/../terraform/vso"
+cd "$(dirname "$0")/../../terraform/vso"
 
 # Check if terraform.tfvars exists, if not create it
 if [ ! -f terraform.tfvars ]; then

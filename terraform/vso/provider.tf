@@ -31,19 +31,21 @@ terraform {
 # -----------------------------------------------------------------------------
 # Kubernetes Provider
 # Uses default kubeconfig discovery (~/.kube/config)
-# Kubeconfig is configured by: az aks get-credentials
+# Kubeconfig is configured by: az aks get-credentials --admin
 # -----------------------------------------------------------------------------
 provider "kubernetes" {
-  config_path = "~/.kube/config"
+  config_path    = "~/.kube/config"
+  config_context = "aks-vault-cluster-admin"
 }
 
 # -----------------------------------------------------------------------------
 # Helm Provider
 # Uses default kubeconfig discovery (~/.kube/config)
 # Automatically discovers and uses the same kubeconfig as Kubernetes provider
-# No nested configuration blocks needed - keeps it simple and clear
 # -----------------------------------------------------------------------------
 provider "helm" {
-  # Uses default kubeconfig at ~/.kube/config
-  # No explicit configuration needed
+  kubernetes {
+    config_path    = "~/.kube/config"
+    config_context = "aks-vault-cluster-admin"
+  }
 }
