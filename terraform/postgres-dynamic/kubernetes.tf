@@ -79,15 +79,15 @@ resource "kubernetes_manifest" "vault_dynamic_secret" {
         create = true
       }
       # refreshAfter controls when VSO requests a new credential from Vault
-      # Timing calculation:
-      #   - Credential TTL: 300s (5 minutes) - defined in database role
-      #   - refreshAfter: 240s (4 minutes) - refresh 1 minute before expiry
-      #   - Overlap window: 60s (1 minute) - time both old and new creds are valid
+      # Calculated as 80% of credential_ttl_seconds (defined in locals.tf)
+      # This provides a 20% overlap window for zero-downtime rotation whilst
+      # minimising the number of simultaneously valid credentials.
       #
-      # This provides smooth zero-downtime rotation whilst minimising the number
-      # of simultaneously valid credentials. Setting this too low (e.g., 60s)
-      # creates a 4-minute overlap where 5 credentials could be valid at once.
-      refreshAfter = "240s"
+      # Example with 300s TTL:
+      #   - Credential TTL: 300s (5 minutes)
+      #   - refreshAfter: 240s (4 minutes) = 300s * 0.8
+      #   - Overlap window: 60s (1 minute) - both credentials valid during rotation
+      refreshAfter = local.vso_refresh_after
     }
   }
 

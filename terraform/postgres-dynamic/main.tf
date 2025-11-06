@@ -62,8 +62,8 @@ resource "vault_database_secret_backend_role" "postgres" {
   backend     = vault_mount.database.path
   name        = "postgres-role"
   db_name     = vault_database_secret_backend_connection.postgres.name
-  default_ttl = 300 # 5 minutes - credentials expire quickly
-  max_ttl     = 600 # 10 minutes - maximum lifetime
+  default_ttl = local.credential_ttl_seconds
+  max_ttl     = local.credential_max_ttl_seconds
   creation_statements = [
     "CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}';",
     "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO \"{{name}}\";",
