@@ -5,7 +5,7 @@
 # Sets up JWT auth and PostgreSQL secrets engine
 # =============================================================================
 
-set -e
+set -euo pipefail
 
 # Source centralised colour configuration
 source "$(dirname "$0")/../lib/colors.sh"

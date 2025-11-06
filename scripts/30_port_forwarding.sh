@@ -5,7 +5,7 @@
 # Sets up port forwarding to access Vault UI locally
 # =============================================================================
 
-set -e
+set -euo pipefail
 
 # Source centralised colour configuration
 source "$(dirname "$0")/lib/colors.sh"

@@ -5,7 +5,7 @@
 # This script deploys Vault to an already running AKS cluster
 # =============================================================================
 
-set -e
+set -euo pipefail
 
 # Source centralised colour configuration
 source "$(dirname "$0")/lib/colors.sh"

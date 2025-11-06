@@ -7,7 +7,7 @@
 # WARNING: This is a destructive operation that cannot be undone!
 # =============================================================================
 
-set -e
+set -euo pipefail
 
 # Source centralised colour configuration
 source "$(dirname "$0")/../lib/colors.sh"
