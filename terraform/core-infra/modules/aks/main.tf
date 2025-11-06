@@ -65,7 +65,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   # ---------------------------------------------------------------------------
   # Azure AD Integration and RBAC
   # Managed AAD integration for Kubernetes authentication
-  # Azure RBAC allows using Azure roles for Kubernetes authorization
+  # Azure RBAC allows using Azure roles for Kubernetes authorisation
   # ---------------------------------------------------------------------------
   azure_active_directory_role_based_access_control {
     # Managed AAD is now the default in AzureRM provider v4.0+

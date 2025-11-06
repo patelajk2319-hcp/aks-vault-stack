@@ -101,5 +101,5 @@ for POD in $VAULT_PODS; do
 done
 
 echo ""
-echo -e "${GREEN}=== Vault Initialization Complete! ===${NC}"
+echo -e "${GREEN}=== Vault Initialisation Complete! ===${NC}"
 echo ""

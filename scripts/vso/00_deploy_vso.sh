@@ -76,8 +76,8 @@ vault_service_name  = "vault"
 EOF
 fi
 
-# Initialize Terraform
-echo -e "${BLUE}Initializing Terraform (VSO)...${NC}"
+# Initialise Terraform
+echo -e "${BLUE}Initialising Terraform (VSO)...${NC}"
 terraform init -upgrade
 
 # Apply Terraform configuration

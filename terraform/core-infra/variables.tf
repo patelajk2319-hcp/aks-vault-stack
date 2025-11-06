@@ -170,7 +170,7 @@ variable "log_retention_days" {
 
 # =============================================================================
 # Resource Tagging
-# Tags applied to all resources for organization and cost tracking
+# Tags applied to all resources for organisation and cost tracking
 # =============================================================================
 
 variable "tags" {
