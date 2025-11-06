@@ -23,6 +23,18 @@
   - Any text output or logs you create
 - Code identifiers (variable names, function names, etc.) can follow standard conventions of the language/framework being used
 
+## Code Commenting Standards
+
+**Keep comments short, sweet, and to the point:**
+- Comments should be concise and descriptive
+- Explain **what** the code does, not **how** (code should be self-explanatory)
+- Avoid verbose, multi-line comments when a single line suffices
+- Remove redundant comments that repeat what the code clearly shows
+- Use brief section headers (e.g., `# JWT Auth Backend - Kubernetes workload authentication`)
+- Prefer clear variable/function names over lengthy explanatory comments
+- **Good example:** `# Refresh at 80% of TTL for zero-downtime rotation`
+- **Bad example:** Multi-paragraph explanations of obvious operations
+
 ## Critical Deployment Workflow
 
 **ALWAYS run these commands in order for ANY deployment or infrastructure change:**
