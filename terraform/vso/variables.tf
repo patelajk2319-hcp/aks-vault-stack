@@ -22,7 +22,7 @@ variable "namespace" {
 variable "vso_chart_version" {
   description = "Version of the Vault Secrets Operator Helm chart"
   type        = string
-  default     = "0.9.0"
+  default     = "0.10.0"
 }
 
 variable "vault_service_name" {

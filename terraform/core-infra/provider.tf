@@ -6,16 +6,16 @@ terraform {
 
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.0" # Use any 3.x version
+      version = "~> 4.51"
     }
 
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~> 2.0" # Use any 2.x version
+      version = "~> 3.6"
     }
   }
-  # Require Terraform version 1.0 or higher
-  required_version = ">= 1.0"
+  # Require Terraform version 1.5 or higher
+  required_version = ">= 1.5"
 }
 
 
