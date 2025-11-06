@@ -45,11 +45,26 @@
 
 ## Infrastructure Standards
 
+### Shell Scripting Standards:
+- **ALWAYS use strict mode for all bash scripts:**
+  - Use `set -euo pipefail` at the start of every script
+  - `set -e`: Exit immediately if any command fails
+  - `set -u`: Exit if attempting to use undefined variables (catches typos)
+  - `set -o pipefail`: Ensure errors in piped commands are caught
+- All scripts must pass shellcheck with zero warnings
+- Use proper quoting for variables and file paths
+- Source shared configuration (colours, common functions) from centralised files
+
 ### Terraform Requirements:
 - **ONLY use official Terraform providers** (published by HashiCorp or the vendor themselves)
 - **NEVER use community providers**
 - **NEVER use heredoc syntax (`<<-EOT`, `<<EOF`, etc.) anywhere in Terraform code**
 - **For kubectl_manifest resources, ALWAYS use `yamlencode()` function**
+- **Terraform version constraint:** Use `required_version = ">= 1.5.0"` in all modules
+- **Provider version pinning:** Use pessimistic constraint operator (`~>`) for all providers
+  - Example: `version = "~> 4.51"` allows 4.51.x to 4.999.x but prevents 5.0.0+
+  - Always specify minor version (e.g., `~> 2.23` not `~> 2`)
+  - This allows safe patch/minor updates whilst preventing breaking major version changes
 - Follow Terraform best practices at all times
 - Use proper state management
 - Use modules for clear separation of concerns
