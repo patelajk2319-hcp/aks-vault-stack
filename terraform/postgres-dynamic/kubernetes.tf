@@ -78,6 +78,15 @@ resource "kubernetes_manifest" "vault_dynamic_secret" {
         name   = "postgres-dynamic-creds"
         create = true
       }
+      # refreshAfter controls when VSO requests a new credential from Vault
+      # Timing calculation:
+      #   - Credential TTL: 300s (5 minutes) - defined in database role
+      #   - refreshAfter: 240s (4 minutes) - refresh 1 minute before expiry
+      #   - Overlap window: 60s (1 minute) - time both old and new creds are valid
+      #
+      # This provides smooth zero-downtime rotation whilst minimising the number
+      # of simultaneously valid credentials. Setting this too low (e.g., 60s)
+      # creates a 4-minute overlap where 5 credentials could be valid at once.
       refreshAfter = "240s"
     }
   }
