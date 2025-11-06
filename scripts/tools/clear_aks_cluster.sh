@@ -78,8 +78,10 @@ if [ -f "terraform.tfstate" ] || [ -f ".terraform/terraform.tfstate" ]; then
   export TF_VAR_oidc_issuer_url="https://dummy-issuer.local"
   export TF_VAR_postgres_connection_url="postgresql://dummy:dummy@localhost:5432/dummy"
 
+  # Note: Vault provider connection errors are expected since port-forwarding is stopped
+  # Terraform uses local state file for destroy, so connection isn't required
   terraform init -upgrade 2>/dev/null || true
-  if terraform destroy -auto-approve -refresh=false; then
+  if terraform destroy -auto-approve -refresh=false 2>/dev/null; then
     VAULT_CONFIG_DESTROY_SUCCESS=true
     echo -e "${GREEN}✓ Vault configuration destroyed${NC}"
   else
