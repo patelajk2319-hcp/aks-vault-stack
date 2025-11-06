@@ -2,7 +2,6 @@
 
 # =============================================================================
 # Connect to PostgreSQL Database
-# This script connects to PostgreSQL using credentials provided as arguments
 # =============================================================================
 #
 # IMPORTANT: If this task hangs or times out when connecting, you need to add
