@@ -93,7 +93,6 @@ postgres_connection_url = "$POSTGRES_CONNECTION_URL"
 EOF
 
 # Initialise Terraform
-echo -e "${BLUE}Initialising Terraform (PostgreSQL Dynamic Credentials)...${NC}"
 terraform init -upgrade
 
 # Apply Terraform configuration
@@ -106,20 +105,6 @@ terraform apply -auto-approve > /dev/null 2>&1 || {
 
 echo ""
 echo -e "${GREEN}✓ Vault configured successfully${NC}"
-echo ""
-
-# -----------------------------------------------------------------------------
-# Display configuration summary
-# -----------------------------------------------------------------------------
-echo -e "${BLUE}Configuration Summary:${NC}"
-echo "  JWT auth path: $(terraform output -raw jwt_auth_path)"
-echo "  Database mount path: $(terraform output -raw database_mount_path)"
-echo "  Database role: $(terraform output -raw database_role_name)"
-echo "  VSO role: $(terraform output -raw vso_role_name)"
-echo ""
-echo -e "${YELLOW}Dynamic credentials path: ${BLUE}$(terraform output -raw dynamic_creds_path)${NC}"
-echo ""
-
 echo ""
 echo -e "${GREEN}=== Dynamic Secrets Enabled! ===${NC}"
 echo ""
