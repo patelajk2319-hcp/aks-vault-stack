@@ -17,16 +17,16 @@ resource "azurerm_kubernetes_cluster" "aks" {
   # Uses VirtualMachineScaleSets for reliability and scaling
   # ---------------------------------------------------------------------------
   default_node_pool {
-    name                = "system"
-    node_count          = var.system_node_count
-    vm_size             = var.system_node_vm_size
-    vnet_subnet_id      = var.subnet_id
-    type                = "VirtualMachineScaleSets" # Required for production
-    enable_auto_scaling = var.enable_auto_scaling
-    min_count           = var.enable_auto_scaling ? var.system_node_min_count : null
-    max_count           = var.enable_auto_scaling ? var.system_node_max_count : null
-    max_pods            = 110 # Maximum pods per node (Azure CNI default)
-    os_disk_size_gb     = 128
+    name                 = "system"
+    node_count           = var.system_node_count
+    vm_size              = var.system_node_vm_size
+    vnet_subnet_id       = var.subnet_id
+    type                 = "VirtualMachineScaleSets" # Required for production
+    auto_scaling_enabled = var.enable_auto_scaling
+    min_count            = var.enable_auto_scaling ? var.system_node_min_count : null
+    max_count            = var.enable_auto_scaling ? var.system_node_max_count : null
+    max_pods             = 110 # Maximum pods per node (Azure CNI default)
+    os_disk_size_gb      = 128
 
     # Upgrade settings control rolling update behaviour during cluster upgrades
     upgrade_settings {
@@ -68,11 +68,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   # Azure RBAC allows using Azure roles for Kubernetes authorization
   # ---------------------------------------------------------------------------
   azure_active_directory_role_based_access_control {
-    # NOTE: 'managed = true' shows a deprecation warning but is still REQUIRED
-    # Without it, defaults to 'managed = false' (legacy AAD) which needs client/server app IDs
-    # This will be replaced in a future AzureRM provider version
-    managed            = true # Required for managed AAD integration
-    azure_rbac_enabled = true # Use Azure RBAC for K8s authorization
+    # Managed AAD is now the default in AzureRM provider v4.0+
+    azure_rbac_enabled = true # Use Azure RBAC for K8s authorisation
     tenant_id          = var.tenant_id
   }
 
@@ -122,7 +119,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "user" {
   vm_size               = var.user_node_vm_size
   node_count            = var.user_node_count
   vnet_subnet_id        = var.subnet_id
-  enable_auto_scaling   = var.enable_auto_scaling
+  auto_scaling_enabled  = var.enable_auto_scaling
   min_count             = var.enable_auto_scaling ? var.user_node_min_count : null
   max_count             = var.enable_auto_scaling ? var.user_node_max_count : null
   max_pods              = 110 # Maximum pods per node (Azure CNI default)
