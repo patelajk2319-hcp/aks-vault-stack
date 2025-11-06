@@ -1,6 +1,6 @@
-# AKS Vault Stack with JWT Authentication
+# AKS Vault Stack
 
-Deploy HashiCorp Vault Enterprise on Azure AKS with PostgreSQL dynamic credentials using JWT authentication.
+Deploy HashiCorp Vault Enterprise on Azure AKS with PostgreSQL dynamic credentials.
 
 ## Prerequisites
 
@@ -29,8 +29,8 @@ licenses/vault-enterprise/license.lic
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
-cd aks-vault-stack-jwt
+git clone https://github.com/patelajk2319-hcp/aks-vault-stack.git
+cd aks-vault-stack
 ```
 
 ### 2. Create `.env` File
