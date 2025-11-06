@@ -4,6 +4,16 @@
 # Connect to PostgreSQL Database
 # This script connects to PostgreSQL using credentials provided as arguments
 # =============================================================================
+#
+# IMPORTANT: If this task hangs or times out when connecting, you need to add
+# your client IP address to the Azure PostgreSQL firewall rules:
+#
+# 1. Go to Azure Portal
+# 2. Navigate to your PostgreSQL Flexible Server
+# 3. Go to Networking section
+# 4. Add your current public IP address to the firewall rules
+# 5. Save the changes and retry the connection
+# =============================================================================
 
 set -e
 
