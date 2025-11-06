@@ -16,7 +16,7 @@ resource "kubernetes_namespace" "vault" {
 }
 
 # -----------------------------------------------------------------------------
-# Vault Enterprise License Secret
+# Vault Enterprise Licence Secret
 # -----------------------------------------------------------------------------
 resource "kubernetes_secret" "vault_license" {
   metadata {

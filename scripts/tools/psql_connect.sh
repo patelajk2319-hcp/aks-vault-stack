@@ -20,13 +20,6 @@ if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ]; then
   exit 1
 fi
 
-# Load environment variables
-if [ ! -f .env ]; then
-  echo -e "${RED}Error: .env file not found${NC}"
-  echo "Please run 'task infra' first to deploy infrastructure"
-  exit 1
-fi
-
 source .env
 
 # Validate required environment variables

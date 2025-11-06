@@ -31,12 +31,3 @@ variable "vault_service_name" {
   default     = "vault"
 }
 
-# -----------------------------------------------------------------------------
-# Resource Tags
-# -----------------------------------------------------------------------------
-
-variable "tags" {
-  description = "Tags to apply to resources"
-  type        = map(string)
-  default     = {}
-}

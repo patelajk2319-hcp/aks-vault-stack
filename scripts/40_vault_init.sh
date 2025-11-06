@@ -67,7 +67,6 @@ if [ ! -f .env ]; then
 # -----------------------------------------------------------------------------
 export VAULT_ADDR=http://localhost:8200
 export VAULT_TOKEN=ROOT_TOKEN_PLACEHOLDER
-export VAULT_NAMESPACE=
 EOF
   # Replace placeholder with actual token
   sed -i.bak "s|ROOT_TOKEN_PLACEHOLDER|$ROOT_TOKEN|" .env

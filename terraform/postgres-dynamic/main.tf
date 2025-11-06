@@ -20,12 +20,12 @@ resource "vault_jwt_auth_backend_role" "vso" {
   role_name      = "vso"
   token_policies = [vault_policy.vso.name]
 
-  bound_audiences   = ["https://kubernetes.default.svc.cluster.local"]
-  bound_subject     = "system:serviceaccount:${var.namespace}:vault-secrets-operator-controller-manager"
-  user_claim        = "sub"
-  role_type         = "jwt"
-  token_ttl         = 3600
-  token_max_ttl     = 7200
+  bound_audiences = ["https://kubernetes.default.svc.cluster.local"]
+  bound_subject   = "system:serviceaccount:${var.namespace}:vault-secrets-operator-controller-manager"
+  user_claim      = "sub"
+  role_type       = "jwt"
+  token_ttl       = 3600
+  token_max_ttl   = 7200
 }
 
 # -----------------------------------------------------------------------------
@@ -57,11 +57,11 @@ resource "vault_database_secret_backend_connection" "postgres" {
 # PostgreSQL Database Role
 # -----------------------------------------------------------------------------
 resource "vault_database_secret_backend_role" "postgres" {
-  backend             = vault_mount.database.path
-  name                = "postgres-role"
-  db_name             = vault_database_secret_backend_connection.postgres.name
-  default_ttl         = 300  # 5 minutes - credentials expire quickly
-  max_ttl             = 600  # 10 minutes - maximum lifetime
+  backend     = vault_mount.database.path
+  name        = "postgres-role"
+  db_name     = vault_database_secret_backend_connection.postgres.name
+  default_ttl = 300 # 5 minutes - credentials expire quickly
+  max_ttl     = 600 # 10 minutes - maximum lifetime
   creation_statements = [
     "CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}';",
     "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO \"{{name}}\";",

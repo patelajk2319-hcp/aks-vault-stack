@@ -137,7 +137,7 @@ else
 fi
 echo ""
 
-# Delete Vault PVCs to ensure clean initialization on next deployment
+# Delete Vault PVCs to ensure clean initialisation on next deployment
 echo -e "${BLUE}Deleting Vault persistent volume claims...${NC}"
 if kubectl get pvc -n vault &>/dev/null; then
   kubectl delete pvc --all -n vault --timeout=60s 2>/dev/null || true

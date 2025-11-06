@@ -17,7 +17,7 @@ resource "azurerm_postgresql_flexible_server" "main" {
   # SKU - Smallest burstable instance (B1ms: 1 vCore, 2 GB RAM)
   sku_name   = "B_Standard_B1ms"
   storage_mb = 32768 # 32 GB minimum
-  zone       = "1"    # Keep in availability zone 1
+  zone       = "1"   # Keep in availability zone 1
 
   # Backup configuration
   backup_retention_days        = 7

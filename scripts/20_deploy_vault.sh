@@ -19,7 +19,6 @@ echo ""
 if ! kubectl cluster-info &>/dev/null; then
   echo -e "${RED}Error: kubectl is not configured or cluster is not accessible${NC}"
   echo "Please ensure AKS cluster is deployed and kubectl is configured"
-  echo "Run: ${BLUE}task up${NC} to deploy AKS infrastructure first"
   exit 1
 fi
 

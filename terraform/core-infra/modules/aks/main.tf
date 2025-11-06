@@ -28,7 +28,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     max_pods            = 110 # Maximum pods per node (Azure CNI default)
     os_disk_size_gb     = 128
 
-    # Upgrade settings control rolling update behavior during cluster upgrades
+    # Upgrade settings control rolling update behaviour during cluster upgrades
     upgrade_settings {
       max_surge = "10%" # Add 10% extra nodes during upgrades for zero-downtime
     }
@@ -129,7 +129,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "user" {
   os_disk_size_gb       = 128
   mode                  = "User" # User mode allows deletion without affecting cluster
 
-  # Upgrade settings control rolling update behavior during cluster upgrades
+  # Upgrade settings control rolling update behaviour during cluster upgrades
   upgrade_settings {
     max_surge = "10%" # Add 10% extra nodes during upgrades for zero-downtime
   }

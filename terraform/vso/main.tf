@@ -3,8 +3,8 @@
 # Vault Secrets Operator Helm Chart
 resource "helm_release" "vault_secrets_operator" {
   name       = "vault-secrets-operator"
-  repository = "https://helm.releases.hashicorp.com" 
-  chart      = "vault-secrets-operator" 
+  repository = "https://helm.releases.hashicorp.com"
+  chart      = "vault-secrets-operator"
   version    = var.vso_chart_version
   namespace  = var.namespace
 

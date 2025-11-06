@@ -3,7 +3,7 @@
 # Configures Helm and Kubernetes providers to deploy VSO to AKS
 # IMPORTANT: Only official HashiCorp providers are used
 # NEVER use community providers - always use official sources
-# VSO requires Vault to be initialized and unsealed before deployment
+# VSO requires Vault to be initialised and unsealed before deployment
 # =============================================================================
 
 terraform {

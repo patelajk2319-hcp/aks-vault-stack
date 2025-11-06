@@ -81,5 +81,5 @@ module "postgresql" {
   tags                      = var.tags
 
   depends_on = [module.vnet]
-  
+
 }

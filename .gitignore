@@ -1,4 +1,4 @@
-# Vault initialization data
+# Vault initialisation data
 vault-init.json
 *.snap
 
@@ -41,5 +41,5 @@ Thumbs.db
 !.gitignore
 !.github/
 
-# License files
+# Licence files
 *.lic
