@@ -98,7 +98,11 @@ terraform init -upgrade
 
 # Apply Terraform configuration
 echo -e "${BLUE}Applying Terraform configuration...${NC}"
-terraform apply -auto-approve
+terraform apply -auto-approve > /dev/null 2>&1 || {
+  echo -e "${RED}Error: Terraform apply failed${NC}"
+  terraform apply -auto-approve
+  exit 1
+}
 
 echo ""
 echo -e "${GREEN}✓ Vault configured successfully${NC}"
