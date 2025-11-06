@@ -110,11 +110,6 @@ tasks:
   # Kubernetes Operations
   # ---------------------------------------------------------------------------
 
-  k9s:
-    desc: Open k9s for the Vault namespace
-    cmds:
-      - k9s -n {{.NAMESPACE}}
-
   pods:
     desc: List all pods in Vault namespace
     cmds:
