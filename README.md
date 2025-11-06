@@ -87,6 +87,14 @@ task psql username=<username> password=<password>
 
 Use `task info` to retrieve the current dynamic credentials from Kubernetes secrets.
 
+**⚠️ IMPORTANT:** If the `task psql` command hangs or times out, you must add your client IP address to the Azure PostgreSQL firewall rules:
+
+1. Go to the Azure Portal
+2. Navigate to your PostgreSQL Flexible Server
+3. Select **Networking** from the left menu
+4. Add your current public IP address to the firewall rules
+5. Save the changes and retry the connection
+
 ## Cleanup
 
 ```bash
@@ -108,6 +116,23 @@ Run `task --list` to see all available commands.
 - **PostgreSQL**: Azure Flexible Server with dynamic credential generation
 - **VSO**: Vault Secrets Operator for Kubernetes-native secret injection
 - **JWT Auth**: Workload identity using AKS OIDC issuer
+
+## Troubleshooting
+
+### PostgreSQL Connection Hangs or Times Out
+
+If you experience connection issues when running `task psql`, this is typically due to Azure PostgreSQL firewall restrictions.
+
+**Solution:**
+1. Navigate to the Azure Portal
+2. Find your PostgreSQL Flexible Server (resource group: `rg-aks-vault-stack`)
+3. Go to **Networking** in the left-hand menu
+4. Under **Firewall rules**, click **Add current client IP address**
+5. Alternatively, manually add your public IP address with a rule name
+6. Click **Save** and wait for the changes to apply
+7. Retry the `task psql` command
+
+**Note:** Your public IP address may change if you're on a dynamic IP connection. You may need to update the firewall rule accordingly.
 
 ## Notes
 
