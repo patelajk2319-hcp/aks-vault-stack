@@ -1,10 +1,8 @@
 # =============================================================================
 # Vault Configuration for Dynamic Credentials
-# Sets up JWT auth and PostgreSQL secrets engine
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# JWT Auth Backend
 # Enables Kubernetes pods to authenticate to Vault using service account JWT tokens
 # -----------------------------------------------------------------------------
 resource "vault_jwt_auth_backend" "jwt" {
@@ -15,7 +13,6 @@ resource "vault_jwt_auth_backend" "jwt" {
 }
 
 # -----------------------------------------------------------------------------
-# JWT Auth Role for VSO
 # Allows the Vault Secrets Operator service account to authenticate and access database secrets using JWT tokens
 # -----------------------------------------------------------------------------
 resource "vault_jwt_auth_backend_role" "vso" {
@@ -58,7 +55,6 @@ resource "vault_database_secret_backend_connection" "postgres" {
 
 # -----------------------------------------------------------------------------
 # PostgreSQL Database Role
-# Defines the SQL statements to create and revoke database users
 # -----------------------------------------------------------------------------
 resource "vault_database_secret_backend_role" "postgres" {
   backend             = vault_mount.database.path

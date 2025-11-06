@@ -36,14 +36,6 @@ cd "$(dirname "$0")/../terraform/vault"
 echo -e "${BLUE}Initialising Terraform (Vault)...${NC}"
 terraform init -upgrade
 
-# Create terraform.tfvars for vault deployment
-# Note: Providers use kubeconfig, no need to pass credentials
-cat > terraform.tfvars <<EOF
-# Vault Configuration
-namespace           = "vault"
-vault_chart_version = "0.31.0"
-EOF
-
 echo -e "${BLUE}Applying Terraform configuration (Vault)...${NC}"
 terraform apply -auto-approve
 

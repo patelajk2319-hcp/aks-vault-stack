@@ -3,7 +3,6 @@
 # =============================================================================
 # Configure Vault for Dynamic PostgreSQL Credentials
 # Sets up JWT auth and PostgreSQL secrets engine
-# IMPORTANT: Vault must be initialised and unsealed before running this
 # =============================================================================
 
 set -e
@@ -49,28 +48,35 @@ echo -e "${GREEN}✓ Prerequisites met${NC}"
 echo ""
 
 # -----------------------------------------------------------------------------
-# Get AKS cluster information
+# Validate infrastructure variables from .env
 # -----------------------------------------------------------------------------
-echo -e "${BLUE}Retrieving AKS cluster information...${NC}"
-cd "$(dirname "$0")/../../terraform/core-infra"
+echo -e "${BLUE}Validating infrastructure configuration...${NC}"
 
-OIDC_ISSUER_URL=$(terraform output -raw aks_oidc_issuer_url)
-POSTGRES_SERVER_FQDN=$(terraform output -raw postgres_server_fqdn)
-POSTGRES_DATABASE=$(terraform output -raw postgres_database_name)
-POSTGRES_ADMIN_USER=$(terraform output -raw postgres_admin_username)
+# Check required infrastructure variables
+if [ -z "$AKS_OIDC_ISSUER_URL" ] || [ -z "$POSTGRES_SERVER_FQDN" ] || \
+   [ -z "$POSTGRES_DATABASE" ] || [ -z "$POSTGRES_ADMIN_USER" ]; then
+  echo -e "${RED}Error: Required infrastructure variables not found in .env${NC}"
+  echo "Please run 'task infra' first to deploy infrastructure and populate .env"
+  exit 1
+fi
 
-echo -e "${GREEN}✓ Cluster information retrieved${NC}"
+echo -e "${GREEN}✓ Infrastructure configuration validated${NC}"
 echo ""
 
 # -----------------------------------------------------------------------------
 # Build PostgreSQL connection URL
 # -----------------------------------------------------------------------------
+echo -e "${BLUE}Building PostgreSQL connection string...${NC}"
+
 if [ -z "$POSTGRES_ADMIN_PASSWORD" ]; then
   echo -e "${RED}Error: POSTGRES_ADMIN_PASSWORD not set in .env${NC}"
   exit 1
 fi
 
 POSTGRES_CONNECTION_URL="postgresql://${POSTGRES_ADMIN_USER}:${POSTGRES_ADMIN_PASSWORD}@${POSTGRES_SERVER_FQDN}:5432/${POSTGRES_DATABASE}?sslmode=require"
+
+echo -e "${GREEN}✓ Connection string built${NC}"
+echo ""
 
 # -----------------------------------------------------------------------------
 # Configure Vault using Terraform
@@ -82,7 +88,7 @@ cd "$(dirname "$0")/../../terraform/postgres-dynamic"
 cat > terraform.tfvars <<EOF
 # Vault Configuration
 namespace           = "$NAMESPACE"
-oidc_issuer_url     = "$OIDC_ISSUER_URL"
+oidc_issuer_url     = "$AKS_OIDC_ISSUER_URL"
 postgres_connection_url = "$POSTGRES_CONNECTION_URL"
 EOF
 
@@ -111,5 +117,5 @@ echo -e "${YELLOW}Dynamic credentials path: ${BLUE}$(terraform output -raw dynam
 echo ""
 
 echo ""
-echo -e "${GREEN}=== Vault Configuration Complete! ===${NC}"
+echo -e "${GREEN}=== Dynamic Secrets Enabled! ===${NC}"
 echo ""

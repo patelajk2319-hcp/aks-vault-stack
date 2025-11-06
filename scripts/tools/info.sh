@@ -89,5 +89,4 @@ echo "  Last Refresh: ${LAST_REFRESH}"
 echo ""
 
 echo -e "${YELLOW}Note: Credentials are dynamically generated and rotate every 5 minutes${NC}"
-echo -e "${YELLOW}VSO automatically refreshes the Kubernetes secret before expiration${NC}"
 echo ""

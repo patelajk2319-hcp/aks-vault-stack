@@ -23,9 +23,6 @@ resource "azurerm_postgresql_flexible_server" "main" {
   backup_retention_days        = 7
   geo_redundant_backup_enabled = false
 
-  # High availability - not configured for cost savings
-  # Omitting high_availability block entirely disables HA
-
   # Maintenance window
   maintenance_window {
     day_of_week  = 0

@@ -62,20 +62,8 @@ ROOT_TOKEN=$(cat vault-init.json | jq -r '.root_token')
 if [ ! -f .env ]; then
   echo -e "${BLUE}Creating .env file...${NC}"
   cat > .env <<'EOF'
-# =============================================================================
-# Environment Variables for AKS Vault Stack Deployment
-# Source this file to interact with Vault: source .env
-# =============================================================================
-
-# -----------------------------------------------------------------------------
-# Azure Provider Configuration
-# -----------------------------------------------------------------------------
-export ARM_SUBSCRIPTION_ID=5ca39afc-4019-4983-b2df-2cd16c511d95
-export ARM_TENANT_ID=56f775a3-2540-4f05-ab58-72cd72d17d3e
-
 # -----------------------------------------------------------------------------
 # Vault Configuration
-# Requires port-forwarding: kubectl port-forward -n vault svc/vault 8200:8200
 # -----------------------------------------------------------------------------
 export VAULT_ADDR=http://localhost:8200
 export VAULT_TOKEN=ROOT_TOKEN_PLACEHOLDER

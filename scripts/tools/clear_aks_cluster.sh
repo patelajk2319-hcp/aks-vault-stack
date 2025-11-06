@@ -74,6 +74,10 @@ if [ -f "terraform.tfstate" ] || [ -f ".terraform/terraform.tfstate" ]; then
     source "$(dirname "$0")/../../.env"
   fi
 
+  # Set dummy variables for destroy (actual values not needed for teardown)
+  export TF_VAR_oidc_issuer_url="https://dummy-issuer.local"
+  export TF_VAR_postgres_connection_url="postgresql://dummy:dummy@localhost:5432/dummy"
+
   terraform init -upgrade 2>/dev/null || true
   if terraform destroy -auto-approve; then
     VAULT_CONFIG_DESTROY_SUCCESS=true
@@ -81,6 +85,10 @@ if [ -f "terraform.tfstate" ] || [ -f ".terraform/terraform.tfstate" ]; then
   else
     echo -e "${YELLOW}Warning: Vault configuration destroy encountered issues${NC}"
   fi
+
+  # Clean up dummy variables
+  unset TF_VAR_oidc_issuer_url
+  unset TF_VAR_postgres_connection_url
 else
   echo -e "${YELLOW}No Vault configuration terraform state found, skipping...${NC}"
   VAULT_CONFIG_DESTROY_SUCCESS=true
@@ -129,6 +137,16 @@ else
 fi
 echo ""
 
+# Delete Vault PVCs to ensure clean initialization on next deployment
+echo -e "${BLUE}Deleting Vault persistent volume claims...${NC}"
+if kubectl get pvc -n vault &>/dev/null; then
+  kubectl delete pvc --all -n vault --timeout=60s 2>/dev/null || true
+  echo -e "${GREEN}✓ Vault PVCs deleted${NC}"
+else
+  echo -e "${YELLOW}No Vault PVCs found${NC}"
+fi
+echo ""
+
 # -----------------------------------------------------------------------------
 # Step 5: Clean up local files
 # -----------------------------------------------------------------------------
@@ -171,7 +189,6 @@ if [ "$VAULT_DESTROY_SUCCESS" = true ]; then
 fi
 
 echo ""
-echo -e "${GREEN}=== Cluster Cleared! ===${NC}"
+echo -e "${GREEN}=== AKS Cluster Cleared! ===${NC}"
 echo ""
-echo -e "${YELLOW}Note: Core infrastructure (AKS + PostgreSQL) is still running${NC}"
-echo ""
+

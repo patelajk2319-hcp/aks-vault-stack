@@ -45,8 +45,6 @@ output "aks_oidc_issuer_url" {
 
 # -----------------------------------------------------------------------------
 # Kubernetes Configuration Outputs
-# Sensitive outputs containing kubeconfig data
-# These are marked sensitive to prevent accidental exposure in logs
 # -----------------------------------------------------------------------------
 
 output "kube_config" {

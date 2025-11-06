@@ -3,17 +3,23 @@
 # Task automation for deploying and managing Vault on Azure AKS
 #
 # Usage:
-#   Deployment workflow:
-#     task infra        - Deploy AKS infrastructure (aliases: aks, k8s)
-#     task up           - Deploy Vault to AKS
+#   Full deployment workflow (run tasks in order):
+#     task login        - Authenticate to Azure
+#     task infra        - Deploy AKS infrastructure (aliases: core)
+#     task up           - Deploy Vault to AKS (aliases: vault)
+#     task init         - Initialise Vault + port-forward
+#     task vso          - Deploy Vault Secrets Operator
+#     task dynamic      - Configure dynamic PostgreSQL credentials
+#
+#   Utility tasks:
 #     task port-forward - Start port forwarding to Vault
-#     task init         - Initialise Vault
-#     task unseal       - Unseal Vault
-#     task vso          - Deploy Vault Secrets Operator (optional)
+#     task unseal       - Unseal Vault + port-forward (use after pod restarts)
+#     task info         - Display connection information and credentials
+#     task psql username=<user> password=<pass> - Connect to PostgreSQL
 #
 #   Cleanup:
-#     task rm      - Clear cluster (VSO, Vault) - keeps AKS running
-#     task nuke    - Destroy ALL infrastructure including AKS
+#     task rm           - Clear cluster (VSO, Vault) - keeps AKS running
+#     task nuke         - Destroy ALL infrastructure including AKS
 # =============================================================================
 
 version: '3'
@@ -76,7 +82,7 @@ tasks:
     desc: Configure Vault for dynamic PostgreSQL credentials (run after VSO is deployed)
     aliases: [dynamic]
     cmds:
-      - NAMESPACE={{.NAMESPACE}} ./scripts/vso/01_configure_postgres_dynamic.sh
+      - NAMESPACE={{.NAMESPACE}} ./scripts/postgres-dynamic/01_configure_postgres_dynamic.sh
 
   # ---------------------------------------------------------------------------
   # Utility Tasks
@@ -143,6 +149,15 @@ tasks:
     desc: Display connection information and dynamic credentials
     cmds:
       - NAMESPACE={{.NAMESPACE}} ./scripts/tools/info.sh
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL Connection
+  # ---------------------------------------------------------------------------
+
+  psql:
+    desc: Connect to PostgreSQL database
+    cmds:
+      - ./scripts/tools/psql_connect.sh "{{.username}}" "{{.password}}"
 
   help:
     desc: Show available tasks

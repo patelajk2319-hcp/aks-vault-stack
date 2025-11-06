@@ -1,6 +1,5 @@
 # -----------------------------------------------------------------------------
-# Kubernetes Namespace
-# Dedicated namespace for Vault and VSO resources
+# Dedicated namespace for Vault resources
 # -----------------------------------------------------------------------------
 resource "kubernetes_namespace" "vault" {
   metadata {
@@ -18,8 +17,6 @@ resource "kubernetes_namespace" "vault" {
 
 # -----------------------------------------------------------------------------
 # Vault Enterprise License Secret
-# Creates Kubernetes secret containing Vault Enterprise license
-# License is read from licenses/vault-enterprise/license.lic
 # -----------------------------------------------------------------------------
 resource "kubernetes_secret" "vault_license" {
   metadata {
@@ -38,7 +35,6 @@ resource "kubernetes_secret" "vault_license" {
   ]
 }
 
-# -----------------------------------------------------------------------------
 # Vault Enterprise Helm Chart Deployment
 resource "helm_release" "vault" {
   name       = "vault"
