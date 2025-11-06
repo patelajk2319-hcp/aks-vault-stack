@@ -3,7 +3,7 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Enables Kubernetes pods to authenticate to Vault using service account JWT tokens
+# JWT Auth Backend - Kubernetes workload authentication
 # -----------------------------------------------------------------------------
 resource "vault_jwt_auth_backend" "jwt" {
   path               = "jwt"
@@ -14,7 +14,7 @@ resource "vault_jwt_auth_backend" "jwt" {
 }
 
 # -----------------------------------------------------------------------------
-# Allows the Vault Secrets Operator service account to authenticate and access database secrets using JWT tokens
+# JWT Role - VSO service account authentication
 # -----------------------------------------------------------------------------
 resource "vault_jwt_auth_backend_role" "vso" {
   backend        = vault_jwt_auth_backend.jwt.path
@@ -39,7 +39,7 @@ resource "vault_mount" "database" {
 }
 
 # -----------------------------------------------------------------------------
-# Configures Vault to connect to PostgreSQL server
+# PostgreSQL Connection Configuration
 # -----------------------------------------------------------------------------
 resource "vault_database_secret_backend_connection" "postgres" {
   backend       = vault_mount.database.path
@@ -75,7 +75,7 @@ resource "vault_database_secret_backend_role" "postgres" {
 }
 
 # -----------------------------------------------------------------------------
-# VSO Policy Resource
+# VSO Access Policy
 # -----------------------------------------------------------------------------
 resource "vault_policy" "vso" {
   name   = "vso-policy"

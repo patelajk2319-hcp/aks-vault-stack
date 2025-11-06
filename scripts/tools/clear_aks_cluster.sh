@@ -1,14 +1,8 @@
 #!/bin/bash
 
 # =============================================================================
-# Clear AKS Cluster - Remove All Resources Without Destroying AKS
-# This script removes all deployed resources from the AKS cluster:
-# 1. Kill any port-forwarding processes
-# 2. Destroy VSO
-# 3. Destroy Vault
-# 4. Clean up local files
-#
-# NOTE: This does NOT destroy the AKS cluster itself
+# Clear AKS Cluster - Remove Vault, VSO, and dynamic credentials
+# Keeps AKS cluster and PostgreSQL running
 # =============================================================================
 
 set -e
@@ -20,7 +14,7 @@ echo -e "${BLUE}=== Clearing AKS Cluster ===${NC}"
 echo ""
 
 # -----------------------------------------------------------------------------
-# Pre-flight Check: Verify AKS cluster exists and is accessible
+# Verify AKS cluster accessibility
 # -----------------------------------------------------------------------------
 echo -e "${BLUE}Checking AKS cluster connectivity...${NC}"
 if ! kubectl cluster-info &>/dev/null; then
@@ -54,7 +48,7 @@ echo -e "${GREEN}✓ Cluster is accessible${NC}"
 echo ""
 
 # -----------------------------------------------------------------------------
-# Step 1: Kill any port-forwarding processes
+# Step 1: Stop port-forwarding
 # -----------------------------------------------------------------------------
 echo -e "${BLUE}Step 1: Stopping port-forwarding processes...${NC}"
 pkill -f "kubectl port-forward.*vault" || true
@@ -62,7 +56,7 @@ echo -e "${GREEN}✓ Port-forwarding processes stopped${NC}"
 echo ""
 
 # -----------------------------------------------------------------------------
-# Step 2: Destroy Vault Configuration (auth & secrets engines)
+# Step 2: Destroy Vault configuration
 # -----------------------------------------------------------------------------
 echo -e "${BLUE}Step 2: Destroying Vault configuration...${NC}"
 cd "$(dirname "$0")/../../terraform/postgres-dynamic"
@@ -119,7 +113,7 @@ fi
 echo ""
 
 # -----------------------------------------------------------------------------
-# Step 4: Destroy Vault
+# Step 4: Destroy Vault infrastructure
 # -----------------------------------------------------------------------------
 echo -e "${BLUE}Step 4: Destroying Vault infrastructure...${NC}"
 cd "$(dirname "$0")/../../terraform/vault"

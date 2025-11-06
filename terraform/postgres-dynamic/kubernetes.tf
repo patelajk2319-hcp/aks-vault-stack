@@ -4,8 +4,7 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# VaultConnection - Vault Server Connection
-# Configures connection details for Vault server
+# VaultConnection - Vault server connection details
 # -----------------------------------------------------------------------------
 resource "kubernetes_manifest" "vault_connection" {
   manifest = {
@@ -28,8 +27,7 @@ resource "kubernetes_manifest" "vault_connection" {
 }
 
 # -----------------------------------------------------------------------------
-# VaultAuth - JWT Authentication Configuration
-# Configures how VSO authenticates to Vault using service account JWT tokens
+# VaultAuth - VSO JWT authentication configuration
 # -----------------------------------------------------------------------------
 resource "kubernetes_manifest" "vault_auth" {
   manifest = {
@@ -59,8 +57,7 @@ resource "kubernetes_manifest" "vault_auth" {
 }
 
 # -----------------------------------------------------------------------------
-# VaultDynamicSecret - PostgreSQL Dynamic Credentials
-# Syncs dynamic database credentials from Vault to Kubernetes secrets
+# VaultDynamicSecret - Syncs PostgreSQL credentials to K8s secrets
 # -----------------------------------------------------------------------------
 resource "kubernetes_manifest" "vault_dynamic_secret" {
   manifest = {
@@ -78,15 +75,7 @@ resource "kubernetes_manifest" "vault_dynamic_secret" {
         name   = "postgres-dynamic-creds"
         create = true
       }
-      # refreshAfter controls when VSO requests a new credential from Vault
-      # Calculated as 80% of credential_ttl_seconds (defined in locals.tf)
-      # This provides a 20% overlap window for zero-downtime rotation whilst
-      # minimising the number of simultaneously valid credentials.
-      #
-      # Example with 300s TTL:
-      #   - Credential TTL: 300s (5 minutes)
-      #   - refreshAfter: 240s (4 minutes) = 300s * 0.8
-      #   - Overlap window: 60s (1 minute) - both credentials valid during rotation
+      # Refresh at 80% of TTL for zero-downtime rotation (see locals.tf)
       refreshAfter = local.vso_refresh_after
     }
   }
