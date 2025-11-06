@@ -28,11 +28,4 @@ data "vault_policy_document" "vso" {
   }
 }
 
-# -----------------------------------------------------------------------------
-# VSO Policy Resource
-# Creates the policy from the document
-# -----------------------------------------------------------------------------
-resource "vault_policy" "vso" {
-  name   = "vso-policy"
-  policy = data.vault_policy_document.vso.hcl
-}
+

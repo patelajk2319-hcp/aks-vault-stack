@@ -1,7 +1,6 @@
 # =============================================================================
 # Kubernetes Manifests for VSO Dynamic Credentials
 # Deploys VaultConnection, VaultAuth, and VaultDynamicSecret resources
-# IMPORTANT: kubernetes_manifest takes object directly (not yamlencode)
 # =============================================================================
 
 # -----------------------------------------------------------------------------

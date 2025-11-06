@@ -71,3 +71,11 @@ resource "vault_database_secret_backend_role" "postgres" {
     "DROP ROLE IF EXISTS \"{{name}}\";"
   ]
 }
+
+# -----------------------------------------------------------------------------
+# VSO Policy Resource
+# -----------------------------------------------------------------------------
+resource "vault_policy" "vso" {
+  name   = "vso-policy"
+  policy = data.vault_policy_document.vso.hcl
+}
