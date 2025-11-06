@@ -8,6 +8,7 @@
 resource "vault_jwt_auth_backend" "jwt" {
   path               = "jwt"
   type               = "jwt"
+  description        = "JWT authentication for Kubernetes workloads"
   oidc_discovery_url = var.oidc_issuer_url
   bound_issuer       = var.oidc_issuer_url
 }
@@ -32,8 +33,9 @@ resource "vault_jwt_auth_backend_role" "vso" {
 # Database Secrets Engine
 # -----------------------------------------------------------------------------
 resource "vault_mount" "database" {
-  path = "database"
-  type = "database"
+  path        = "database"
+  type        = "database"
+  description = "PostgreSQL dynamic credentials engine"
 }
 
 # -----------------------------------------------------------------------------
