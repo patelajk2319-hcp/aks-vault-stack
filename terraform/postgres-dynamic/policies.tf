@@ -27,5 +27,3 @@ data "vault_policy_document" "vso" {
     description  = "Allow listing database roles"
   }
 }
-
-
