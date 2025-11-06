@@ -79,7 +79,7 @@ if [ -f "terraform.tfstate" ] || [ -f ".terraform/terraform.tfstate" ]; then
   export TF_VAR_postgres_connection_url="postgresql://dummy:dummy@localhost:5432/dummy"
 
   terraform init -upgrade 2>/dev/null || true
-  if terraform destroy -auto-approve; then
+  if terraform destroy -auto-approve -refresh=false; then
     VAULT_CONFIG_DESTROY_SUCCESS=true
     echo -e "${GREEN}✓ Vault configuration destroyed${NC}"
   else
