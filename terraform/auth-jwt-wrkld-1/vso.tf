@@ -1,6 +1,7 @@
 # =============================================================================
-# Kubernetes Manifests for VSO Dynamic Credentials
+# VSO Kubernetes Manifests for Workload 1
 # Deploys VaultConnection, VaultAuth, and VaultDynamicSecret resources
+# Connects workload to Vault for dynamic PostgreSQL credentials
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -11,7 +12,7 @@ resource "kubernetes_manifest" "vault_connection" {
     apiVersion = "secrets.hashicorp.com/v1beta1"
     kind       = "VaultConnection"
     metadata = {
-      name      = "vault-connection"
+      name      = "vault-connection-wrkld1"
       namespace = var.namespace
     }
     spec = {
@@ -21,33 +22,32 @@ resource "kubernetes_manifest" "vault_connection" {
   }
 
   depends_on = [
-    vault_jwt_auth_backend.jwt
+    vault_jwt_auth_backend.wrkld1
   ]
 }
 
 # -----------------------------------------------------------------------------
-# VaultAuth - VSO JWT authentication configuration
+# VaultAuth - JWT authentication using wrkld1 ServiceAccount
 # -----------------------------------------------------------------------------
 resource "kubernetes_manifest" "vault_auth" {
   manifest = {
     apiVersion = "secrets.hashicorp.com/v1beta1"
     kind       = "VaultAuth"
     metadata = {
-      name      = "vault-auth"
+      name      = "vault-auth-wrkld1"
       namespace = var.namespace
     }
 
     spec = {
       vaultConnectionRef = kubernetes_manifest.vault_connection.manifest.metadata.name
 
-      # Use jwt auth method
+      # Use JWT auth method configured in this module
       method = "jwt"
-      mount  = vault_jwt_auth_backend.jwt.path
+      mount  = vault_jwt_auth_backend.wrkld1.path
 
-      #each app needs a service account, we can use a K8s one for this demo, ault-secrets-operator-controller-manager is not needed here...
       jwt = {
-        role           = vault_jwt_auth_backend_role.vso.role_name
-        serviceAccount = "vault-secrets-operator-controller-manager"
+        role           = vault_jwt_auth_backend_role.wrkld1.role_name
+        serviceAccount = kubernetes_service_account.account.metadata[0].name
         audiences = [
           "https://kubernetes.default.svc.cluster.local"
         ]
@@ -68,15 +68,15 @@ resource "kubernetes_manifest" "vault_dynamic_secret" {
     apiVersion = "secrets.hashicorp.com/v1beta1"
     kind       = "VaultDynamicSecret"
     metadata = {
-      name      = "postgres-dynamic-creds"
+      name      = "postgres-dynamic-creds-wrkld1"
       namespace = var.namespace
     }
     spec = {
-      mount        = vault_mount.database.path
-      path         = "creds/${vault_database_secret_backend_role.postgres.name}"
+      mount        = var.database_mount_path
+      path         = "creds/${var.database_role_name}"
       vaultAuthRef = kubernetes_manifest.vault_auth.manifest.metadata.name
       destination = {
-        name   = "postgres-dynamic-creds"
+        name   = "postgres-dynamic-creds-wrkld1"
         create = true
       }
 
@@ -86,7 +86,6 @@ resource "kubernetes_manifest" "vault_dynamic_secret" {
   }
 
   depends_on = [
-    kubernetes_manifest.vault_auth,
-    vault_database_secret_backend_role.postgres
+    kubernetes_manifest.vault_auth
   ]
 }

@@ -9,7 +9,8 @@
 #     task up           - Deploy Vault to AKS (aliases: vault)
 #     task init         - Initialise Vault + port-forward
 #     task vso          - Deploy Vault Secrets Operator
-#     task dynamic      - Configure dynamic PostgreSQL credentials
+#     task database     - Configure PostgreSQL database backend in Vault
+#     task workload1    - Configure JWT auth and VSO for workload 1
 #
 #   Utility tasks:
 #     task port-forward - Start port forwarding to Vault
@@ -79,10 +80,16 @@ tasks:
       - NAMESPACE={{.NAMESPACE}} ./scripts/vso/00_deploy_vso.sh
 
   postgres-dynamic:
-    desc: Configure Vault for dynamic PostgreSQL credentials (run after VSO is deployed)
-    aliases: [dynamic]
+    desc: Configure PostgreSQL database backend in Vault (run after VSO is deployed)
+    aliases: [dynamic, database, db-creds]
     cmds:
       - NAMESPACE={{.NAMESPACE}} ./scripts/postgres-dynamic/01_configure_postgres_dynamic.sh
+
+  workload1:
+    desc: Configure JWT auth and VSO for workload 1 (run after database)
+    aliases: [wkd1, wkd]
+    cmds:
+      - NAMESPACE={{.NAMESPACE}} ./scripts/auth-jwt-wrkld-1/01_configure_jwt_auth.sh
 
   # ---------------------------------------------------------------------------
   # Utility Tasks

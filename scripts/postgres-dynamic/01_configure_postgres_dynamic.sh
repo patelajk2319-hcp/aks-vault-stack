@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # =============================================================================
-# Configure Vault for Dynamic PostgreSQL Credentials
-# Sets up JWT auth and PostgreSQL secrets engine
+# Configure Vault PostgreSQL Database Secrets Engine
+# Sets up database mount and PostgreSQL connection in Vault
+# Workload access is configured separately in auth-jwt-wrkld-1
 # =============================================================================
 
 set -euo pipefail
@@ -53,8 +54,7 @@ echo ""
 echo -e "${BLUE}Validating infrastructure configuration...${NC}"
 
 # Check required infrastructure variables
-if [ -z "$AKS_OIDC_ISSUER_URL" ] || [ -z "$POSTGRES_SERVER_FQDN" ] || \
-   [ -z "$POSTGRES_DATABASE" ] || [ -z "$POSTGRES_ADMIN_USER" ]; then
+if [ -z "$POSTGRES_SERVER_FQDN" ] || [ -z "$POSTGRES_DATABASE" ] || [ -z "$POSTGRES_ADMIN_USER" ]; then
   echo -e "${RED}Error: Required infrastructure variables not found in .env${NC}"
   echo "Please run 'task infra' first to deploy infrastructure and populate .env"
   exit 1
@@ -81,14 +81,13 @@ echo ""
 # -----------------------------------------------------------------------------
 # Configure Vault using Terraform
 # -----------------------------------------------------------------------------
-echo -e "${BLUE}Configuring Vault JWT auth and secrets engines...${NC}"
+echo -e "${BLUE}Configuring Vault database secrets engine...${NC}"
 cd "$(dirname "$0")/../../terraform/postgres-dynamic"
 
 # Create terraform.tfvars
 cat > terraform.tfvars <<EOF
 # Vault Configuration
-namespace           = "$NAMESPACE"
-oidc_issuer_url     = "$AKS_OIDC_ISSUER_URL"
+namespace               = "$NAMESPACE"
 postgres_connection_url = "$POSTGRES_CONNECTION_URL"
 EOF
 

@@ -1,17 +1,12 @@
 # =============================================================================
 # Vault Configuration Variables
-# Parameters for setting up Vault JWT auth and secrets engines
+# Parameters for setting up Vault database secrets engine
 # =============================================================================
 
 variable "namespace" {
-  description = "Kubernetes namespace where VSO is deployed"
+  description = "Kubernetes namespace where workload is deployed"
   type        = string
   default     = "vault"
-}
-
-variable "oidc_issuer_url" {
-  description = "OIDC issuer URL from AKS cluster for JWT authentication"
-  type        = string
 }
 
 variable "postgres_connection_url" {

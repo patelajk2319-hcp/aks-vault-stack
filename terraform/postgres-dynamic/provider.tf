@@ -1,6 +1,6 @@
 # =============================================================================
-# Provider Configuration for Vault Configuration
-# Configures Vault provider to set up auth and secrets engines
+# Provider Configuration for PostgreSQL Database Secrets
+# Configures Vault provider to set up database secrets engine
 # IMPORTANT: Only official HashiCorp providers are used
 # NEVER use community providers - always use official sources
 # Vault must be initialised and unsealed before running this configuration
@@ -17,13 +17,6 @@ terraform {
       source  = "hashicorp/vault"
       version = "~> 4.0"
     }
-    # Official Kubernetes provider from HashiCorp
-    # Source: https://registry.terraform.io/providers/hashicorp/kubernetes
-    # Published by: HashiCorp (official Kubernetes provider)
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "~> 2.23"
-    }
   }
 }
 
@@ -39,14 +32,4 @@ provider "vault" {
   # export VAULT_TOKEN=<root_token>
   #
   # These are set automatically in .env by the vault init script
-}
-
-# -----------------------------------------------------------------------------
-# Kubernetes Provider
-# Uses default kubeconfig discovery (~/.kube/config)
-# Kubeconfig is configured by: az aks get-credentials --admin
-# -----------------------------------------------------------------------------
-provider "kubernetes" {
-  config_path    = "~/.kube/config"
-  config_context = "aks-vault-cluster-admin"
 }

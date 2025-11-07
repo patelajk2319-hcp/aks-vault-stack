@@ -5,25 +5,33 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# VSO Policy Document
-# Grants VSO permission to read database credentials and list roles
+# wrkld1 Policy Document
+# Grants workload 1 permission to read database credentials
 # -----------------------------------------------------------------------------
-data "vault_policy_document" "vso" {
+data "vault_policy_document" "wrkld1" {
   rule {
-    path         = "${vault_mount.database.path}/creds/${vault_database_secret_backend_role.postgres.name}"
+    path         = "database/creds/*"
     capabilities = ["read"]
-    description  = "Allow reading dynamic PostgreSQL credentials"
+    description  = "Allow reading dynamic database credentials"
   }
 
   rule {
-    path         = "${vault_mount.database.path}/creds/*"
+    path         = "database/creds/*"
     capabilities = ["list"]
     description  = "Allow listing database credential paths"
   }
 
   rule {
-    path         = "${vault_mount.database.path}/roles"
+    path         = "database/roles"
     capabilities = ["list"]
     description  = "Allow listing database roles"
   }
+}
+
+# -----------------------------------------------------------------------------
+# wrkld1 Policy
+# -----------------------------------------------------------------------------
+resource "vault_policy" "wrkld1" {
+  name   = "wrkld1-policy"
+  policy = data.vault_policy_document.wrkld1.hcl
 }

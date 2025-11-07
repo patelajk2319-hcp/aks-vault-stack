@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# Display Dynamic PostgreSQL Credentials
+# Display Dynamic PostgreSQL Credentials for Workload 1
 # Reads credentials from Kubernetes secret synced by VSO
 # =============================================================================
 
@@ -11,7 +11,8 @@ set -euo pipefail
 source "$(dirname "$0")/../lib/colors.sh"
 
 NAMESPACE="${NAMESPACE:-vault}"
-SECRET_NAME="postgres-dynamic-creds"
+SECRET_NAME="postgres-dynamic-creds-wrkld1"
+VDS_NAME="postgres-dynamic-creds-wrkld1"
 
 echo -e "${BLUE}=== Dynamic PostgreSQL Credentials ===${NC}"
 echo ""
@@ -27,12 +28,16 @@ if ! kubectl get secret "$SECRET_NAME" -n "$NAMESPACE" &>/dev/null; then
   echo -e "${RED}Error: Secret '$SECRET_NAME' not found in namespace '$NAMESPACE'${NC}"
   echo ""
   echo "This secret is created by Vault Secrets Operator (VSO) after running:"
-  echo "  task dynamic"
+  echo "  task database    # Configure Vault database secrets engine"
+  echo "  task workload1   # Deploy workload with VSO"
   echo ""
-  echo "Make sure you have:"
-  echo "  1. Deployed VSO: task vso"
-  echo "  2. Configured Vault: task dynamic"
-  echo "  3. Created VaultDynamicSecret custom resource"
+  echo "Make sure you have completed the full deployment workflow:"
+  echo "  1. task infra    - Deploy AKS infrastructure"
+  echo "  2. task vault    - Deploy Vault to AKS"
+  echo "  3. task init     - Initialise Vault"
+  echo "  4. task vso      - Deploy Vault Secrets Operator"
+  echo "  5. task database - Configure PostgreSQL in Vault"
+  echo "  6. task workload1 - Deploy workload 1"
   exit 1
 fi
 
@@ -75,7 +80,7 @@ echo -e "${BLUE}Credential Metadata:${NC}"
 CREATION_TIME=$(kubectl get secret "$SECRET_NAME" -n "$NAMESPACE" -o jsonpath='{.metadata.creationTimestamp}')
 
 # Get last renewal time from VaultDynamicSecret status (Unix timestamp)
-LAST_RENEWAL_TIMESTAMP=$(kubectl get vaultdynamicsecret postgres-dynamic-creds -n "$NAMESPACE" -o jsonpath='{.status.lastRenewalTime}' 2>/dev/null)
+LAST_RENEWAL_TIMESTAMP=$(kubectl get vaultdynamicsecret "$VDS_NAME" -n "$NAMESPACE" -o jsonpath='{.status.lastRenewalTime}' 2>/dev/null)
 
 if [ -n "$LAST_RENEWAL_TIMESTAMP" ]; then
   # Convert Unix timestamp to human-readable format

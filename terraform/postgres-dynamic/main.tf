@@ -1,35 +1,7 @@
 # =============================================================================
-# Vault Configuration for Postgress Dynamic Credentials. 
-# This configures Vault so Vault can manage dynamic credentials on Postgress database
+# Vault Configuration for PostgreSQL Dynamic Credentials
+# Configures database secrets engine for dynamic credential generation
 # =============================================================================
-
-# -----------------------------------------------------------------------------
-# JWT Auth Backend - Kubernetes workload authentication
-# -----------------------------------------------------------------------------
-resource "vault_jwt_auth_backend" "jwt" {
-  path               = "jwt"
-  type               = "jwt"
-  description        = "JWT authentication for Kubernetes workloads"
-  oidc_discovery_url = var.oidc_issuer_url
-  bound_issuer       = var.oidc_issuer_url
-}
-
-# -----------------------------------------------------------------------------
-# JWT Role - VSO service account authentication
-# -----------------------------------------------------------------------------
-resource "vault_jwt_auth_backend_role" "vso" {
-  backend        = vault_jwt_auth_backend.jwt.path
-  role_name      = "vso"
-  token_policies = [vault_policy.vso.name]
-
-  bound_audiences = ["https://kubernetes.default.svc.cluster.local"]
-  bound_subject   = "system:serviceaccount:${var.namespace}:vault-secrets-operator-controller-manager"
-  
-  user_claim      = "sub"
-  role_type       = "jwt"
-  token_ttl       = 3600
-  token_max_ttl   = 7200
-}
 
 # -----------------------------------------------------------------------------
 # Database Secrets Engine
@@ -74,12 +46,4 @@ resource "vault_database_secret_backend_role" "postgres" {
   revocation_statements = [
     "DROP ROLE IF EXISTS \"{{name}}\";"
   ]
-}
-
-# -----------------------------------------------------------------------------
-# VSO Access Policy
-# -----------------------------------------------------------------------------
-resource "vault_policy" "vso" {
-  name   = "vso-policy"
-  policy = data.vault_policy_document.vso.hcl
 }
