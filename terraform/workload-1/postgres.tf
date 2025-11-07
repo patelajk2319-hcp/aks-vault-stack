@@ -1,20 +1,11 @@
-# =============================================================================
-# Vault Configuration for PostgreSQL Dynamic Credentials
-# Configures database secrets engine for dynamic credential generation
-# =============================================================================
-
-# -----------------------------------------------------------------------------
-# Database Secrets Engine
-# -----------------------------------------------------------------------------
+# PostgreSQL Database Configuration
 resource "vault_mount" "database" {
   path        = "database"
   type        = "database"
   description = "PostgreSQL dynamic credentials engine"
 }
 
-# -----------------------------------------------------------------------------
-# PostgreSQL Connection Configuration
-# -----------------------------------------------------------------------------
+# PostgreSQL Connection
 resource "vault_database_secret_backend_connection" "postgres" {
   backend       = vault_mount.database.path
   name          = "postgres"
@@ -29,9 +20,7 @@ resource "vault_database_secret_backend_connection" "postgres" {
   verify_connection = true
 }
 
-# -----------------------------------------------------------------------------
-# PostgreSQL Database Role
-# -----------------------------------------------------------------------------
+# PostgreSQL Role
 resource "vault_database_secret_backend_role" "postgres" {
   backend     = vault_mount.database.path
   name        = "postgres-role"

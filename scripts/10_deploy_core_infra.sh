@@ -77,6 +77,9 @@ POSTGRES_DATABASE=$(terraform output -raw postgres_database_name)
 POSTGRES_ADMIN_USER=$(terraform output -raw postgres_admin_username)
 OIDC_ISSUER_URL=$(terraform output -raw aks_oidc_issuer_url)
 
+# Construct PostgreSQL connection URL
+POSTGRES_CONNECTION_URL="postgresql://${POSTGRES_ADMIN_USER}:${POSTGRES_ADMIN_PASSWORD}@${POSTGRES_SERVER_FQDN}:5432/${POSTGRES_DATABASE}?sslmode=require"
+
 # Update .env file with infrastructure outputs
 echo -e "${BLUE}Updating .env with infrastructure details...${NC}"
 cd "$(dirname "$0")/.."
@@ -110,6 +113,7 @@ if [ ! -f .env ]; then
 export POSTGRES_SERVER_FQDN=$POSTGRES_SERVER_FQDN
 export POSTGRES_DATABASE=$POSTGRES_DATABASE
 export POSTGRES_ADMIN_USER=$POSTGRES_ADMIN_USER
+export POSTGRES_CONNECTION_URL="$POSTGRES_CONNECTION_URL"
 export AKS_OIDC_ISSUER_URL=$OIDC_ISSUER_URL
 EOF
 else
@@ -117,6 +121,7 @@ else
   update_env_var "POSTGRES_SERVER_FQDN" "$POSTGRES_SERVER_FQDN"
   update_env_var "POSTGRES_DATABASE" "$POSTGRES_DATABASE"
   update_env_var "POSTGRES_ADMIN_USER" "$POSTGRES_ADMIN_USER"
+  update_env_var "POSTGRES_CONNECTION_URL" "\"$POSTGRES_CONNECTION_URL\""
   update_env_var "AKS_OIDC_ISSUER_URL" "$OIDC_ISSUER_URL"
 
   # Clean up backup files

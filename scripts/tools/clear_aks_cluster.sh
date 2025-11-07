@@ -1,22 +1,14 @@
 #!/bin/bash
 
-# =============================================================================
-# Clear AKS Cluster
-# Removes Vault configuration, JWT auth, VSO, and Vault infrastructure
-# Keeps AKS cluster and PostgreSQL running
-# =============================================================================
+# Clear AKS Cluster - Removes VSO, Workload 1, and Vault
 
 set -euo pipefail
 
-# Source centralised colour configuration
 source "$(dirname "$0")/../lib/colors.sh"
 
 echo -e "${BLUE}=== Clearing AKS Cluster ===${NC}"
 echo ""
 
-# -----------------------------------------------------------------------------
-# Verify AKS cluster accessibility
-# -----------------------------------------------------------------------------
 echo -e "${BLUE}Checking AKS cluster connectivity...${NC}"
 if ! kubectl cluster-info &>/dev/null; then
   echo -e "${YELLOW}Warning: kubectl is not configured or cluster is not accessible${NC}"
@@ -30,20 +22,16 @@ if ! kubectl cluster-info &>/dev/null; then
   rm -f vault-init.json 2>/dev/null || true
   rm -f terraform/vault/terraform.tfvars 2>/dev/null || true
   rm -f terraform/vso/terraform.tfvars 2>/dev/null || true
-  rm -f terraform/auth-jwt-wrkld-1/terraform.tfvars 2>/dev/null || true
-  rm -f terraform/postgres-dynamic/terraform.tfvars 2>/dev/null || true
+  rm -f terraform/workload-1/terraform.tfvars 2>/dev/null || true
   rm -f terraform/vault/.terraform.lock.hcl 2>/dev/null || true
   rm -f terraform/vso/.terraform.lock.hcl 2>/dev/null || true
-  rm -f terraform/auth-jwt-wrkld-1/.terraform.lock.hcl 2>/dev/null || true
-  rm -f terraform/postgres-dynamic/.terraform.lock.hcl 2>/dev/null || true
+  rm -f terraform/workload-1/.terraform.lock.hcl 2>/dev/null || true
   rm -rf terraform/vso/.terraform 2>/dev/null || true
   rm -f terraform/vso/terraform.tfstate* 2>/dev/null || true
   rm -rf terraform/vault/.terraform 2>/dev/null || true
   rm -f terraform/vault/terraform.tfstate* 2>/dev/null || true
-  rm -rf terraform/auth-jwt-wrkld-1/.terraform 2>/dev/null || true
-  rm -f terraform/auth-jwt-wrkld-1/terraform.tfstate* 2>/dev/null || true
-  rm -rf terraform/vault-config/.terraform 2>/dev/null || true
-  rm -f terraform/vault-config/terraform.tfstate* 2>/dev/null || true
+  rm -rf terraform/workload-1/.terraform 2>/dev/null || true
+  rm -f terraform/workload-1/terraform.tfstate* 2>/dev/null || true
   echo -e "${GREEN}✓ Local files cleaned${NC}"
   echo ""
   echo -e "${GREEN}=== Cleanup Complete! ===${NC}"
@@ -52,86 +40,40 @@ fi
 echo -e "${GREEN}✓ Cluster is accessible${NC}"
 echo ""
 
-# -----------------------------------------------------------------------------
-# Step 1: Stop port-forwarding
-# -----------------------------------------------------------------------------
 echo -e "${BLUE}Step 1: Stopping port-forwarding processes...${NC}"
 pkill -f "kubectl port-forward.*vault" || true
 echo -e "${GREEN}✓ Port-forwarding processes stopped${NC}"
 echo ""
 
-# -----------------------------------------------------------------------------
-# Step 2: Destroy Vault configuration
-# -----------------------------------------------------------------------------
-echo -e "${BLUE}Step 2: Destroying Vault configuration...${NC}"
-cd "$(dirname "$0")/../../terraform/postgres-dynamic"
+echo -e "${BLUE}Step 2: Destroying Workload 1...${NC}"
+cd "$(dirname "$0")/../../terraform/workload-1"
 
-VAULT_CONFIG_DESTROY_SUCCESS=false
+WORKLOAD_DESTROY_SUCCESS=false
 if [ -f "terraform.tfstate" ] || [ -f ".terraform/terraform.tfstate" ]; then
-  # Source .env for Vault credentials
   if [ -f "$(dirname "$0")/../../.env" ]; then
     source "$(dirname "$0")/../../.env"
   fi
 
-  # Set dummy variables for destroy (actual values not needed for teardown)
   export TF_VAR_postgres_connection_url="postgresql://dummy:dummy@localhost:5432/dummy"
-
-  # Note: Vault provider connection errors are expected since port-forwarding is stopped
-  # Terraform uses local state file for destroy, so connection isn't required
-  terraform init -upgrade 2>/dev/null || true
-  if terraform destroy -auto-approve -refresh=false 2>/dev/null; then
-    VAULT_CONFIG_DESTROY_SUCCESS=true
-    echo -e "${GREEN}✓ Vault configuration destroyed${NC}"
-  else
-    echo -e "${YELLOW}Warning: Vault configuration destroy encountered issues${NC}"
-  fi
-
-  # Clean up dummy variables
-  unset TF_VAR_postgres_connection_url
-else
-  echo -e "${YELLOW}No Vault configuration terraform state found, skipping...${NC}"
-  VAULT_CONFIG_DESTROY_SUCCESS=true
-fi
-echo ""
-
-# -----------------------------------------------------------------------------
-# Step 3: Destroy JWT authentication configuration
-# -----------------------------------------------------------------------------
-echo -e "${BLUE}Step 3: Destroying JWT authentication configuration...${NC}"
-cd "$(dirname "$0")/../../terraform/auth-jwt-wrkld-1"
-
-JWT_AUTH_DESTROY_SUCCESS=false
-if [ -f "terraform.tfstate" ] || [ -f ".terraform/terraform.tfstate" ]; then
-  # Source .env for Vault credentials
-  if [ -f "$(dirname "$0")/../../.env" ]; then
-    source "$(dirname "$0")/../../.env"
-  fi
-
-  # Set dummy variables for destroy (actual values not needed for teardown)
   export TF_VAR_oidc_issuer_url="https://dummy-issuer.local"
 
-  # Note: Vault provider connection errors are expected since port-forwarding is stopped
-  # Terraform uses local state file for destroy, so connection isn't required
   terraform init -upgrade 2>/dev/null || true
   if terraform destroy -auto-approve -refresh=false 2>/dev/null; then
-    JWT_AUTH_DESTROY_SUCCESS=true
-    echo -e "${GREEN}✓ JWT authentication configuration destroyed${NC}"
+    WORKLOAD_DESTROY_SUCCESS=true
+    echo -e "${GREEN}✓ Workload 1 destroyed${NC}"
   else
-    echo -e "${YELLOW}Warning: JWT authentication destroy encountered issues${NC}"
+    echo -e "${YELLOW}Warning: Workload 1 destroy encountered issues${NC}"
   fi
 
-  # Clean up dummy variables
+  unset TF_VAR_postgres_connection_url
   unset TF_VAR_oidc_issuer_url
 else
-  echo -e "${YELLOW}No JWT authentication terraform state found, skipping...${NC}"
-  JWT_AUTH_DESTROY_SUCCESS=true
+  echo -e "${YELLOW}No Workload 1 terraform state found, skipping...${NC}"
+  WORKLOAD_DESTROY_SUCCESS=true
 fi
 echo ""
 
-# -----------------------------------------------------------------------------
-# Step 4: Destroy VSO
-# -----------------------------------------------------------------------------
-echo -e "${BLUE}Step 4: Destroying Vault Secrets Operator...${NC}"
+echo -e "${BLUE}Step 3: Destroying Vault Secrets Operator...${NC}"
 cd "$(dirname "$0")/../../terraform/vso"
 
 VSO_DESTROY_SUCCESS=false
@@ -149,10 +91,7 @@ else
 fi
 echo ""
 
-# -----------------------------------------------------------------------------
-# Step 5: Destroy Vault infrastructure
-# -----------------------------------------------------------------------------
-echo -e "${BLUE}Step 5: Destroying Vault infrastructure...${NC}"
+echo -e "${BLUE}Step 4: Destroying Vault infrastructure...${NC}"
 cd "$(dirname "$0")/../../terraform/vault"
 
 VAULT_DESTROY_SUCCESS=false
@@ -180,43 +119,26 @@ else
 fi
 echo ""
 
-# -----------------------------------------------------------------------------
-# Step 6: Clean up local files
-# -----------------------------------------------------------------------------
-echo -e "${BLUE}Step 6: Cleaning up local files...${NC}"
+echo -e "${BLUE}Step 5: Cleaning up local files...${NC}"
 cd "$(dirname "$0")/../.."
 
-# Remove Vault initialisation files
 rm -f vault-init.json
 echo -e "${GREEN}  - Removed vault-init.json${NC}"
 
-# Remove terraform.tfvars files (but not core-infra)
 rm -f terraform/vault/terraform.tfvars
 rm -f terraform/vso/terraform.tfvars
-rm -f terraform/auth-jwt-wrkld-1/terraform.tfvars
-rm -f terraform/postgres-dynamic/terraform.tfvars
-rm -f terraform/vault-config/terraform.tfvars
+rm -f terraform/workload-1/terraform.tfvars
 echo -e "${GREEN}  - Removed terraform.tfvars files${NC}"
 
-# Remove terraform lock files (but not core-infra)
 rm -f terraform/vault/.terraform.lock.hcl
 rm -f terraform/vso/.terraform.lock.hcl
-rm -f terraform/auth-jwt-wrkld-1/.terraform.lock.hcl
-rm -f terraform/postgres-dynamic/.terraform.lock.hcl
-rm -f terraform/vault-config/.terraform.lock.hcl
+rm -f terraform/workload-1/.terraform.lock.hcl
 echo -e "${GREEN}  - Removed terraform lock files${NC}"
 
-# Remove .terraform directories and state files only if destroy was successful
-if [ "$VAULT_CONFIG_DESTROY_SUCCESS" = true ]; then
-  rm -rf terraform/postgres-dynamic/.terraform
-  rm -f terraform/postgres-dynamic/terraform.tfstate*
-  echo -e "${GREEN}  - Removed postgres-dynamic .terraform directory and state files${NC}"
-fi
-
-if [ "$JWT_AUTH_DESTROY_SUCCESS" = true ]; then
-  rm -rf terraform/auth-jwt-wrkld-1/.terraform
-  rm -f terraform/auth-jwt-wrkld-1/terraform.tfstate*
-  echo -e "${GREEN}  - Removed auth-jwt-wrkld-1 .terraform directory and state files${NC}"
+if [ "$WORKLOAD_DESTROY_SUCCESS" = true ]; then
+  rm -rf terraform/workload-1/.terraform
+  rm -f terraform/workload-1/terraform.tfstate*
+  echo -e "${GREEN}  - Removed workload-1 .terraform directory and state files${NC}"
 fi
 
 if [ "$VSO_DESTROY_SUCCESS" = true ]; then

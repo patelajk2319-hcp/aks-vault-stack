@@ -1,12 +1,6 @@
-# =============================================================================
-# VSO Kubernetes Manifests for Workload 1
-# Deploys VaultConnection, VaultAuth, and VaultDynamicSecret resources
-# Connects workload to Vault for dynamic PostgreSQL credentials
-# =============================================================================
+# VSO Resources
 
-# -----------------------------------------------------------------------------
-# VaultConnection - Vault server connection details
-# -----------------------------------------------------------------------------
+# VaultConnection
 resource "kubernetes_manifest" "vault_connection" {
   manifest = {
     apiVersion = "secrets.hashicorp.com/v1beta1"
@@ -26,9 +20,7 @@ resource "kubernetes_manifest" "vault_connection" {
   ]
 }
 
-# -----------------------------------------------------------------------------
-# VaultAuth - JWT authentication using wrkld1 ServiceAccount
-# -----------------------------------------------------------------------------
+# VaultAuth
 resource "kubernetes_manifest" "vault_auth" {
   manifest = {
     apiVersion = "secrets.hashicorp.com/v1beta1"
@@ -41,7 +33,6 @@ resource "kubernetes_manifest" "vault_auth" {
     spec = {
       vaultConnectionRef = kubernetes_manifest.vault_connection.manifest.metadata.name
 
-      # Use JWT auth method configured in this module
       method = "jwt"
       mount  = vault_jwt_auth_backend.wrkld1.path
 
@@ -60,9 +51,7 @@ resource "kubernetes_manifest" "vault_auth" {
   ]
 }
 
-# -----------------------------------------------------------------------------
-# VaultDynamicSecret - Syncs PostgreSQL credentials to K8s secrets
-# -----------------------------------------------------------------------------
+# VaultDynamicSecret
 resource "kubernetes_manifest" "vault_dynamic_secret" {
   manifest = {
     apiVersion = "secrets.hashicorp.com/v1beta1"
@@ -72,20 +61,22 @@ resource "kubernetes_manifest" "vault_dynamic_secret" {
       namespace = var.namespace
     }
     spec = {
-      mount        = var.database_mount_path
-      path         = "creds/${var.database_role_name}"
+      mount        = local.database_mount_path
+      path         = "creds/${local.database_role_name}"
       vaultAuthRef = kubernetes_manifest.vault_auth.manifest.metadata.name
+      
+      # Name of the Kubernetes Secret which we push the Vault dynamic secret to
       destination = {
         name   = "postgres-dynamic-creds-wrkld1"
         create = true
       }
 
-      # Refresh at 80% of TTL for zero-downtime rotation (see locals.tf)
       refreshAfter = local.vso_refresh_after
     }
   }
 
   depends_on = [
-    kubernetes_manifest.vault_auth
+    kubernetes_manifest.vault_auth,
+    vault_database_secret_backend_role.postgres
   ]
 }

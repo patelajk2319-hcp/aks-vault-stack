@@ -1,7 +1,4 @@
-# =============================================================================
-# JWT Authentication Outputs
-# Exports values for use by other modules
-# =============================================================================
+# Outputs
 
 output "jwt_auth_path" {
   description = "Path where JWT auth backend is mounted"
