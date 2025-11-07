@@ -21,8 +21,7 @@ resource "kubernetes_manifest" "vault_connection" {
   }
 
   depends_on = [
-    vault_jwt_auth_backend.jwt,
-    vault_policy.vso
+    vault_jwt_auth_backend.jwt
   ]
 }
 
@@ -37,10 +36,15 @@ resource "kubernetes_manifest" "vault_auth" {
       name      = "vault-auth"
       namespace = var.namespace
     }
+
     spec = {
       vaultConnectionRef = kubernetes_manifest.vault_connection.manifest.metadata.name
-      method             = "jwt"
-      mount              = vault_jwt_auth_backend.jwt.path
+
+      # Use jwt auth method
+      method = "jwt"
+      mount  = vault_jwt_auth_backend.jwt.path
+
+      #each app needs a service account, we can use a K8s one for this demo, ault-secrets-operator-controller-manager is not needed here...
       jwt = {
         role           = vault_jwt_auth_backend_role.vso.role_name
         serviceAccount = "vault-secrets-operator-controller-manager"
@@ -75,6 +79,7 @@ resource "kubernetes_manifest" "vault_dynamic_secret" {
         name   = "postgres-dynamic-creds"
         create = true
       }
+
       # Refresh at 80% of TTL for zero-downtime rotation (see locals.tf)
       refreshAfter = local.vso_refresh_after
     }

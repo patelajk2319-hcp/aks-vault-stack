@@ -1,5 +1,6 @@
 # =============================================================================
-# Vault Configuration for Dynamic Credentials
+# Vault Configuration for Postgress Dynamic Credentials. 
+# This configures Vault so Vault can manage dynamic credentials on Postgress database
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -23,6 +24,7 @@ resource "vault_jwt_auth_backend_role" "vso" {
 
   bound_audiences = ["https://kubernetes.default.svc.cluster.local"]
   bound_subject   = "system:serviceaccount:${var.namespace}:vault-secrets-operator-controller-manager"
+  
   user_claim      = "sub"
   role_type       = "jwt"
   token_ttl       = 3600
