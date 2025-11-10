@@ -23,13 +23,17 @@ if ! kubectl cluster-info &>/dev/null; then
   rm -f terraform/vault/terraform.tfvars 2>/dev/null || true
   rm -f terraform/vso/terraform.tfvars 2>/dev/null || true
   rm -f terraform/workload-1/terraform.tfvars 2>/dev/null || true
+  rm -f terraform/vault-audit-devices/terraform.tfvars 2>/dev/null || true
   rm -f terraform/vault/.terraform.lock.hcl 2>/dev/null || true
   rm -f terraform/vso/.terraform.lock.hcl 2>/dev/null || true
   rm -f terraform/workload-1/.terraform.lock.hcl 2>/dev/null || true
+  rm -f terraform/vault-audit-devices/.terraform.lock.hcl 2>/dev/null || true
   rm -rf terraform/vso/.terraform 2>/dev/null || true
   rm -f terraform/vso/terraform.tfstate* 2>/dev/null || true
   rm -rf terraform/vault/.terraform 2>/dev/null || true
   rm -f terraform/vault/terraform.tfstate* 2>/dev/null || true
+  rm -rf terraform/vault-audit-devices/.terraform 2>/dev/null || true
+  rm -f terraform/vault-audit-devices/terraform.tfstate* 2>/dev/null || true
   rm -rf terraform/workload-1/.terraform 2>/dev/null || true
   rm -f terraform/workload-1/terraform.tfstate* 2>/dev/null || true
   echo -e "${GREEN}✓ Local files cleaned${NC}"
@@ -91,7 +95,29 @@ else
 fi
 echo ""
 
-echo -e "${BLUE}Step 4: Destroying Vault infrastructure...${NC}"
+echo -e "${BLUE}Step 4: Destroying Vault audit devices...${NC}"
+cd "$(dirname "$0")/../../terraform/vault-audit-devices"
+
+AUDIT_DESTROY_SUCCESS=false
+if [ -f "terraform.tfstate" ] || [ -f ".terraform/terraform.tfstate" ]; then
+  if [ -f "$(dirname "$0")/../../.env" ]; then
+    source "$(dirname "$0")/../../.env"
+  fi
+
+  terraform init -upgrade 2>/dev/null || true
+  if terraform destroy -auto-approve; then
+    AUDIT_DESTROY_SUCCESS=true
+    echo -e "${GREEN}✓ Audit devices destroyed${NC}"
+  else
+    echo -e "${YELLOW}Warning: Audit devices destroy encountered issues${NC}"
+  fi
+else
+  echo -e "${YELLOW}No audit devices terraform state found, skipping...${NC}"
+  AUDIT_DESTROY_SUCCESS=true
+fi
+echo ""
+
+echo -e "${BLUE}Step 5: Destroying Vault infrastructure...${NC}"
 cd "$(dirname "$0")/../../terraform/vault"
 
 VAULT_DESTROY_SUCCESS=false
@@ -119,7 +145,7 @@ else
 fi
 echo ""
 
-echo -e "${BLUE}Step 5: Cleaning up local files...${NC}"
+echo -e "${BLUE}Step 6: Cleaning up local files...${NC}"
 cd "$(dirname "$0")/../.."
 
 rm -f vault-init.json
@@ -128,11 +154,13 @@ echo -e "${GREEN}  - Removed vault-init.json${NC}"
 rm -f terraform/vault/terraform.tfvars
 rm -f terraform/vso/terraform.tfvars
 rm -f terraform/workload-1/terraform.tfvars
+rm -f terraform/vault-audit-devices/terraform.tfvars
 echo -e "${GREEN}  - Removed terraform.tfvars files${NC}"
 
 rm -f terraform/vault/.terraform.lock.hcl
 rm -f terraform/vso/.terraform.lock.hcl
 rm -f terraform/workload-1/.terraform.lock.hcl
+rm -f terraform/vault-audit-devices/.terraform.lock.hcl
 echo -e "${GREEN}  - Removed terraform lock files${NC}"
 
 if [ "$WORKLOAD_DESTROY_SUCCESS" = true ]; then
@@ -145,6 +173,12 @@ if [ "$VSO_DESTROY_SUCCESS" = true ]; then
   rm -rf terraform/vso/.terraform
   rm -f terraform/vso/terraform.tfstate*
   echo -e "${GREEN}  - Removed VSO .terraform directory and state files${NC}"
+fi
+
+if [ "$AUDIT_DESTROY_SUCCESS" = true ]; then
+  rm -rf terraform/vault-audit-devices/.terraform
+  rm -f terraform/vault-audit-devices/terraform.tfstate*
+  echo -e "${GREEN}  - Removed audit-devices .terraform directory and state files${NC}"
 fi
 
 if [ "$VAULT_DESTROY_SUCCESS" = true ]; then
