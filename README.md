@@ -68,6 +68,9 @@ task vault
 # Initialise Vault and set up port forwarding
 task init
 
+# Unseal Vault
+task unseal
+
 # Deploy Vault Secrets Operator
 task vso
 
