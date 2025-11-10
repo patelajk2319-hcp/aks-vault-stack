@@ -33,9 +33,13 @@ server:
     size: 10Gi
     storageClass: null  # Use default storage class
 
-  # Audit storage (disabled - stored in data directory)
+  # Audit storage for persistent audit logs
+  # NOTE: Audit logs are stored in /vault/data/audit.log (on dataStorage volume)
+  # even if auditStorage is disabled. Enable auditStorage for dedicated volume.
   auditStorage:
-    enabled: false
+    enabled: true
+    size: 5Gi
+    storageClass: null  # Use default storage class
 
   # Single replica configuration for demo/testing
   # HA disabled to reduce costs

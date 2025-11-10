@@ -8,6 +8,7 @@
 #     task infra        - Deploy AKS infrastructure (aliases: core)
 #     task up           - Deploy Vault to AKS (aliases: vault)
 #     task init         - Initialise Vault + port-forward
+#     task audit        - Configure Vault audit devices
 #     task vso          - Deploy Vault Secrets Operator
 #     task workload1    - Deploy workload 1 (PostgreSQL + JWT auth)
 #
@@ -15,6 +16,7 @@
 #     task port-forward - Start port forwarding to Vault
 #     task unseal       - Unseal Vault + port-forward (use after pod restarts)
 #     task info         - Display connection information and credentials
+#     task audit-logs   - Query Vault audit logs for credential lifecycle
 #     task psql username=<user> password=<pass> - Connect to PostgreSQL
 #
 #   Cleanup:
@@ -84,6 +86,11 @@ tasks:
     cmds:
       - NAMESPACE={{.NAMESPACE}} ./scripts/workload-1/01_configure_jwt_auth.sh
 
+  audit:
+    desc: Configure Vault audit devices (run after Vault is initialised and unsealed)
+    cmds:
+      - NAMESPACE={{.NAMESPACE}} ./scripts/audit-devices/01_configure_audit.sh
+
   # ---------------------------------------------------------------------------
   # Utility Tasks
   # ---------------------------------------------------------------------------
@@ -144,6 +151,12 @@ tasks:
     desc: Display connection information and dynamic credentials
     cmds:
       - NAMESPACE={{.NAMESPACE}} ./scripts/tools/info.sh
+
+  audit-logs:
+    desc: Query Vault audit logs for credential lifecycle events
+    aliases: [logs-audit]
+    cmds:
+      - NAMESPACE={{.NAMESPACE}} ./scripts/tools/audit_query.sh
 
   # ---------------------------------------------------------------------------
   # PostgreSQL Connection

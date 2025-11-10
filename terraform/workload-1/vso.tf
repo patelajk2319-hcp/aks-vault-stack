@@ -64,7 +64,7 @@ resource "kubernetes_manifest" "vault_dynamic_secret" {
       mount        = local.database_mount_path
       path         = "creds/${local.database_role_name}"
       vaultAuthRef = kubernetes_manifest.vault_auth.manifest.metadata.name
-      
+
       # Name of the Kubernetes Secret which we push the Vault dynamic secret to
       destination = {
         name   = "postgres-dynamic-creds-wrkld1"

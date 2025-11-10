@@ -1,6 +1,10 @@
 #!/bin/bash
 
-# Deploy Workload 1 - PostgreSQL Database and JWT Authentication
+# =============================================================================
+# Deploy Workload 1
+# Configures PostgreSQL database secrets engine and JWT authentication
+# IMPORTANT: Must run AFTER Vault is initialised and VSO is deployed
+# =============================================================================
 
 set -euo pipefail
 
@@ -24,6 +28,20 @@ if [ ! -f .env ]; then
 fi
 
 source .env
+
+# Check if Vault environment variables are set
+if [ -z "${VAULT_TOKEN:-}" ]; then
+  echo -e "${RED}Error: VAULT_TOKEN not set in .env${NC}"
+  echo "Run 'task init' first to initialise Vault"
+  exit 1
+fi
+
+if [ -z "${VAULT_ADDR:-}" ]; then
+  echo -e "${RED}Error: VAULT_ADDR not set in .env${NC}"
+  echo "Run 'task init' first to initialise Vault"
+  exit 1
+fi
+
 if ! curl -s -o /dev/null -w "%{http_code}" http://localhost:8200/v1/sys/health | grep -q "200\|429"; then
   echo -e "${RED}Error: Cannot connect to Vault at http://localhost:8200${NC}"
   echo "Ensure port forwarding is active: task port-forward"
@@ -76,11 +94,4 @@ terraform apply -auto-approve > /dev/null 2>&1 || {
 
 echo ""
 echo -e "${GREEN}✓ Workload 1 deployed successfully${NC}"
-echo ""
-echo -e "${GREEN}=== Workload 1 Ready ===${NC}"
-echo ""
-echo -e "${BLUE}Database secrets engine:${NC} database/"
-echo -e "${BLUE}JWT auth path:${NC}          jwt/wrkld1"
-echo -e "${BLUE}Service account:${NC}        wrkld1-svc-acc"
-echo -e "${BLUE}K8s secret:${NC}             postgres-dynamic-creds-wrkld1"
 echo ""

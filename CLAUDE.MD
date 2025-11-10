@@ -43,9 +43,10 @@
 2. `task infra` - Deploys core infrastructure (AKS + PostgreSQL)
 3. `task up` - Deploys Vault Enterprise onto AKS
 4. `task init` - Initialise Vault, unseal, and set up port forwarding
-5. `task vso` - Deploy Vault Secrets Operator
-6. `task postgres-dynamic` (or `task dynamic`) - Configure Vault for dynamic PostgreSQL credentials
-7. `task info` - Display connection information and dynamic credentials from K8s secrets
+5. `task audit` - Configure Vault audit devices (file-based audit logging)
+6. `task vso` - Deploy Vault Secrets Operator
+7. `task workload1` - Configure workload 1 (PostgreSQL + JWT auth)
+8. `task info` - Display connection information and dynamic credentials from K8s secrets
 
 ## Azure Infrastructure Standards
 
