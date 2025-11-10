@@ -1,7 +1,5 @@
 # =============================================================================
 # Vault Policy Documents
-# Defines policies using vault_policy_document data sources
-# IMPORTANT: Always use policy documents, never use heredoc for policies
 # =============================================================================
 
 # -----------------------------------------------------------------------------

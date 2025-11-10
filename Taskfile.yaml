@@ -16,7 +16,9 @@
 #     task port-forward - Start port forwarding to Vault
 #     task unseal       - Unseal Vault + port-forward (use after pod restarts)
 #     task info         - Display connection information and credentials
-#     task audit-logs   - Query Vault audit logs for credential lifecycle
+#     task audit-logs   - Query Vault audit logs (default: last 10 records)
+#     task audit-logs limit=20 - Query audit logs (last 20 records per section)
+#     task revoke path=<lease_path> - Revoke a database credential lease
 #     task psql username=<user> password=<pass> - Connect to PostgreSQL
 #
 #   Cleanup:
@@ -153,10 +155,15 @@ tasks:
       - NAMESPACE={{.NAMESPACE}} ./scripts/tools/info.sh
 
   audit-logs:
-    desc: Query Vault audit logs for credential lifecycle events
+    desc: Query Vault audit logs for credential lifecycle events (limit={{.limit | default "10"}})
     aliases: [logs-audit]
     cmds:
-      - NAMESPACE={{.NAMESPACE}} ./scripts/tools/audit_query.sh
+      - NAMESPACE={{.NAMESPACE}} LIMIT={{.limit | default "10"}} ./scripts/tools/audit_query.sh
+
+  revoke:
+    desc: Revoke a database credential lease
+    cmds:
+      - NAMESPACE={{.NAMESPACE}} ./scripts/tools/revoke_lease_db.sh "{{.path}}"
 
   # ---------------------------------------------------------------------------
   # PostgreSQL Connection

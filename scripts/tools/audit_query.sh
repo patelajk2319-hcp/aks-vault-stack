@@ -10,8 +10,9 @@ set -euo pipefail
 source "$(dirname "$0")/../lib/colors.sh"
 
 NAMESPACE="${NAMESPACE:-vault}"
+LIMIT="${LIMIT:-10}"
 
-echo -e "${BLUE}=== Vault Audit Log Query ===${NC}"
+echo -e "${BLUE}=== Vault Audit Log Query (last ${LIMIT} records per section) ===${NC}"
 echo ""
 
 # Copy audit log from Vault pod
@@ -23,6 +24,8 @@ kubectl exec -n "$NAMESPACE" vault-0 -- cat /vault/data/audit.log > /tmp/vault-a
 # -----------------------------------------------------------------------------
 echo -e "${GREEN}Database Credential Creation Events:${NC}"
 echo "------------------------------------"
+printf "%-20s | %-20s | %-30s | %s\n" "TIMESTAMP" "SERVICE ACCOUNT" "PATH" "LEASE ID"
+printf "%-20s | %-20s | %-30s | %s\n" "--------------------" "--------------------" "------------------------------" "----------------------------------------"
 
 cat /tmp/vault-audit.log | \
   grep 'database/creds' | \
@@ -44,7 +47,8 @@ cat /tmp/vault-audit.log | \
     path=$3;
     lease=$4;
     printf "%-20s | %-20s | %-30s | %s\n", time, auth, path, lease
-  }' | head -20
+  }' | \
+  tail -n "$LIMIT"
 
 echo ""
 
@@ -53,6 +57,8 @@ echo ""
 # -----------------------------------------------------------------------------
 echo -e "${GREEN}Credential Lease Renewal Events:${NC}"
 echo "--------------------------------"
+printf "%-20s | %-20s | %s\n" "TIMESTAMP" "SERVICE ACCOUNT" "LEASE ID"
+printf "%-20s | %-20s | %s\n" "--------------------" "--------------------" "------------------------------------------------------------"
 
 cat /tmp/vault-audit.log | \
   grep 'sys/leases/renew' | \
@@ -71,7 +77,8 @@ cat /tmp/vault-audit.log | \
     gsub(/jwt-wrkld1-system:serviceaccount:vault:/, "", auth);
     lease=$3;
     printf "%-20s | %-20s | %s\n", time, auth, lease
-  }' | head -20
+  }' | \
+  tail -n "$LIMIT"
 
 echo ""
 
@@ -81,22 +88,17 @@ echo ""
 echo -e "${GREEN}Credential Lease Revocation Events:${NC}"
 echo "-----------------------------------"
 
-REVOCATIONS=$(cat /tmp/vault-audit.log | \
-  grep -E 'sys/leases/revoke' || true | \
-  grep '"type":"response"' || true | \
-  wc -l | tr -d ' ')
+if grep -q '"path":"sys/leases/revoke' /tmp/vault-audit.log; then
+  printf "%-20s | %-20s | %s\n" "TIMESTAMP" "SERVICE ACCOUNT" "REVOKED LEASE ID"
+  printf "%-20s | %-20s | %s\n" "--------------------" "--------------------" "----------------------------------------------------------------"
 
-if [ "$REVOCATIONS" -eq 0 ]; then
-  echo "No revocation events found yet"
-else
   cat /tmp/vault-audit.log | \
-    grep -E 'sys/leases/revoke' | \
+    grep '"path":"sys/leases/revoke' | \
     grep '"type":"response"' | \
     jq -r '[
       .time,
       .auth.display_name,
-      .request.path,
-      .request.data.lease_id // "N/A"
+      (.request.path | sub("sys/leases/revoke/"; ""))
     ] | @tsv' | \
     awk -F'\t' '{
       time=$1;
@@ -104,10 +106,12 @@ else
       gsub(/Z/, "", time);
       sub(/\.[0-9]+/, "", time);
       auth=$2;
-      path=$3;
-      lease=$4;
-      printf "%-20s | %-20s | %-30s | %s\n", time, auth, path, lease
-    }'
+      lease=$3;
+      printf "%-20s | %-20s | %s\n", time, auth, lease
+    }' | \
+    tail -n "$LIMIT"
+else
+  echo "No revocation events found yet"
 fi
 
 echo ""
