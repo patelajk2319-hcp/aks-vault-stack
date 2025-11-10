@@ -14,7 +14,7 @@ echo -e "${BLUE}=== Dynamic PostgreSQL Credentials ===${NC}"
 echo ""
 echo -e "${BLUE}Time Run:${NC}"
 echo "---------"
-echo "$(date '+%d %b %Y - %H:%M:%S')"
+date '+%d %b %Y - %H:%M:%S'
 echo ""
 if ! kubectl get secret "$SECRET_NAME" -n "$NAMESPACE" &>/dev/null; then
   echo -e "${RED}Error: Secret '$SECRET_NAME' not found in namespace '$NAMESPACE'${NC}"

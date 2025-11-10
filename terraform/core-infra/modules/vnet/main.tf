@@ -1,9 +1,5 @@
 
-# -----------------------------------------------------------------------------
-# Azure Virtual Network
-# Provides isolated network space for AKS cluster resources
-# The address space must be large enough to accommodate all subnets
-# -----------------------------------------------------------------------------
+# Virtual Network for AKS cluster
 resource "azurerm_virtual_network" "aks_vnet" {
   name                = "${var.cluster_name}-vnet"
   location            = var.location
@@ -13,12 +9,7 @@ resource "azurerm_virtual_network" "aks_vnet" {
   tags = var.tags
 }
 
-# -----------------------------------------------------------------------------
-# AKS Subnet
-# Dedicated subnet for AKS nodes and pods
-# This subnet will be delegated to AKS for IP allocation
-# Size should accommodate all nodes + pods (depends on CNI mode)
-# -----------------------------------------------------------------------------
+# AKS subnet with VNet IP allocation
 resource "azurerm_subnet" "aks_subnet" {
   name                 = "${var.cluster_name}-subnet"
   resource_group_name  = var.resource_group_name

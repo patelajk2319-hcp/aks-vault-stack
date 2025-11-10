@@ -1,8 +1,9 @@
 # =============================================================================
 # Provider Configuration for Vault Deployment
 # Configures Helm and Kubernetes providers to deploy Vault to AKS
+# NOTE: Vault provider is NOT included here - Vault configuration happens
+# in separate modules AFTER Vault is initialised (e.g., vault-audit-devices)
 # IMPORTANT: Only official HashiCorp providers are used
-# NEVER use community providers - always use official sources
 # =============================================================================
 
 terraform {

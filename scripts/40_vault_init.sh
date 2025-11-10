@@ -2,13 +2,11 @@
 
 # =============================================================================
 # Initialise Vault
-# This script checks if Vault is already initialised, initialises it with a
-# single key, and saves credentials to .env and vault-init.json
+# Initialises Vault with single key and saves credentials to .env
 # =============================================================================
 
 set -euo pipefail
 
-# Source centralised colour configuration
 source "$(dirname "$0")/lib/colors.sh"
 
 NAMESPACE="${NAMESPACE:-vault}"
@@ -87,11 +85,9 @@ fi
 echo -e "${GREEN}✓ Root token saved to .env${NC}"
 echo ""
 
-# Unseal all Vault replicas
 echo -e "${BLUE}Unsealing Vault replicas...${NC}"
 UNSEAL_KEY=$(cat vault-init.json | jq -r '.unseal_keys_b64[0]')
 
-# Get all Vault pods
 VAULT_PODS=$(kubectl get pods -n "$NAMESPACE" -l app.kubernetes.io/name=vault -o jsonpath='{.items[*].metadata.name}')
 
 for POD in $VAULT_PODS; do
