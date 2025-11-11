@@ -1,26 +1,12 @@
-# =============================================================================
-# Provider Configuration for Vault Deployment
-# Configures Helm and Kubernetes providers to deploy Vault to AKS
-# NOTE: Vault provider is NOT included here - Vault configuration happens
-# in separate modules AFTER Vault is initialised (e.g., vault-audit-devices)
-# IMPORTANT: Only official HashiCorp providers are used
-# =============================================================================
 
 terraform {
   required_version = ">= 1.5.0"
 
   required_providers {
-    # Official Helm provider from HashiCorp
-    # Source: https://registry.terraform.io/providers/hashicorp/helm
-    # Published by: HashiCorp (official Kubernetes Helm provider)
-    # Used to deploy official Vault Helm chart from https://helm.releases.hashicorp.com
     helm = {
       source  = "hashicorp/helm"
       version = "~> 2.11"
     }
-    # Official Kubernetes provider from HashiCorp
-    # Source: https://registry.terraform.io/providers/hashicorp/kubernetes
-    # Published by: HashiCorp (official Kubernetes provider)
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = "~> 2.23"
