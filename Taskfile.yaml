@@ -18,6 +18,7 @@
 #     task info         - Display connection information and credentials
 #     task audit-logs   - Query Vault audit logs (default: last 10 records)
 #     task audit-logs limit=20 - Query audit logs (last 20 records per section)
+#     task audit-logs-raw - Export audit logs as raw JSON to data/dynamic-raw-json.json
 #     task revoke path=<lease_path> - Revoke a database credential lease
 #     task delete-k8s-secret - Delete the Kubernetes secret created by VSO
 #     task psql username=<user> password=<pass> - Connect to PostgreSQL
@@ -39,8 +40,8 @@ tasks:
   # ---------------------------------------------------------------------------
 
   azure-login:
-    aliases: [login]
     desc: Login to Azure with tenant
+    aliases: [login]
     cmds:
       - az login --tenant 56f775a3-2540-4f05-ab58-72cd72d17d3e
 
@@ -55,14 +56,14 @@ tasks:
       - ./scripts/10_deploy_core_infra.sh
 
   vault:
-    aliases: [up]
     desc: Deploy Vault to AKS cluster
+    aliases: [up]
     cmds:
       - ./scripts/20_deploy_vault.sh
       
   port-forward:
-    aliases: [fwd, forward]
     desc: Start port forwarding to Vault
+    aliases: [fwd, forward]
     cmds:
       - NAMESPACE={{.NAMESPACE}} ./scripts/30_port_forwarding.sh
 
@@ -165,6 +166,12 @@ tasks:
     aliases: [logs-audit]
     cmds:
       - NAMESPACE={{.NAMESPACE}} LIMIT={{.limit | default "10"}} ./scripts/tools/audit_query.sh
+
+  audit-logs-raw:
+    desc: Export Vault audit logs as raw JSON to data/dynamic-raw-json.json
+    aliases: [logs-raw, raw]
+    cmds:
+      - NAMESPACE={{.NAMESPACE}} ./scripts/tools/audit_query_raw.sh
 
   revoke:
     desc: Revoke a database credential lease

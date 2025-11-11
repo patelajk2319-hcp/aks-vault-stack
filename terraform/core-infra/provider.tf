@@ -11,6 +11,11 @@ terraform {
       source  = "hashicorp/azuread"
       version = "~> 3.6"
     }
+
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.6"
+    }
   }
   # Require Terraform version 1.5 or higher
   required_version = ">= 1.5.0"

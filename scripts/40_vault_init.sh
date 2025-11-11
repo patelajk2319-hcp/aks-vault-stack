@@ -8,6 +8,10 @@
 set -euo pipefail
 
 source "$(dirname "$0")/lib/colors.sh"
+source "$(dirname "$0")/lib/kubectl_context.sh"
+
+# Ensure we're using the correct kubectl context
+ensure_correct_kubectl_context "$(dirname "$0")" || exit 1
 
 NAMESPACE="${NAMESPACE:-vault}"
 VAULT_POD="${VAULT_POD:-vault-0}"

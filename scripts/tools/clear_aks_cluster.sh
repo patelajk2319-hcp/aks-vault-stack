@@ -187,6 +187,12 @@ if [ "$VAULT_DESTROY_SUCCESS" = true ]; then
   echo -e "${GREEN}  - Removed Vault .terraform directory and state files${NC}"
 fi
 
+# Remove data folder
+if [ -d "data" ]; then
+  rm -rf data
+  echo -e "${GREEN}  - Removed data folder${NC}"
+fi
+
 echo ""
 echo -e "${GREEN}=== AKS Cluster Cleared! ===${NC}"
 echo ""

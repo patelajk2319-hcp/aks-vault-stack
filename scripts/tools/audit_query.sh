@@ -57,28 +57,33 @@ echo ""
 # -----------------------------------------------------------------------------
 echo -e "${GREEN}Credential Lease Renewal Events:${NC}"
 echo "--------------------------------"
-printf "%-20s | %-20s | %s\n" "TIMESTAMP" "SERVICE ACCOUNT" "LEASE ID"
-printf "%-20s | %-20s | %s\n" "--------------------" "--------------------" "------------------------------------------------------------"
 
-cat /tmp/vault-audit.log | \
-  grep 'sys/leases/renew' | \
-  grep '"type":"response"' | \
-  jq -r '[
-    .time,
-    .auth.display_name,
-    .request.data.lease_id // "N/A"
-  ] | @tsv' | \
-  awk -F'\t' '{
-    time=$1;
-    gsub(/T/, " ", time);
-    gsub(/Z/, "", time);
-    sub(/\.[0-9]+/, "", time);
-    auth=$2;
-    gsub(/jwt-wrkld1-system:serviceaccount:vault:/, "", auth);
-    lease=$3;
-    printf "%-20s | %-20s | %s\n", time, auth, lease
-  }' | \
-  tail -n "$LIMIT"
+if grep -q 'sys/leases/renew' /tmp/vault-audit.log; then
+  printf "%-20s | %-20s | %s\n" "TIMESTAMP" "SERVICE ACCOUNT" "LEASE ID"
+  printf "%-20s | %-20s | %s\n" "--------------------" "--------------------" "------------------------------------------------------------"
+
+  cat /tmp/vault-audit.log | \
+    grep 'sys/leases/renew' | \
+    grep '"type":"response"' | \
+    jq -r '[
+      .time,
+      .auth.display_name,
+      .request.data.lease_id // "N/A"
+    ] | @tsv' | \
+    awk -F'\t' '{
+      time=$1;
+      gsub(/T/, " ", time);
+      gsub(/Z/, "", time);
+      sub(/\.[0-9]+/, "", time);
+      auth=$2;
+      gsub(/jwt-wrkld1-system:serviceaccount:vault:/, "", auth);
+      lease=$3;
+      printf "%-20s | %-20s | %s\n", time, auth, lease
+    }' | \
+    tail -n "$LIMIT"
+else
+  echo "No renewal events found yet"
+fi
 
 echo ""
 

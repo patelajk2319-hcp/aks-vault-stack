@@ -43,3 +43,6 @@ Thumbs.db
 
 # Licence files
 *.lic
+
+# Data output folder
+data/

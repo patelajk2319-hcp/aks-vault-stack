@@ -14,8 +14,13 @@ output "resource_group_name" {
 # -----------------------------------------------------------------------------
 
 output "aks_cluster_name" {
-  description = "The name of the AKS cluster"
+  description = "The unique name of the AKS cluster (includes automatically generated suffix)"
   value       = module.aks.aks_cluster_name
+}
+
+output "cluster_name_generated" {
+  description = "The generated cluster name with unique suffix"
+  value       = local.cluster_name
 }
 
 output "aks_cluster_id" {

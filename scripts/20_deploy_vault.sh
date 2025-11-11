@@ -9,20 +9,19 @@ set -euo pipefail
 
 # Source centralised colour configuration
 source "$(dirname "$0")/lib/colors.sh"
+source "$(dirname "$0")/lib/kubectl_context.sh"
 
 echo -e "${BLUE}=== Deploying Vault to AKS ===${NC}"
 echo ""
 
-# -----------------------------------------------------------------------------
-# Verify kubectl is configured
-# -----------------------------------------------------------------------------
+# Verify kubectl is configured and switch to correct context
 if ! kubectl cluster-info &>/dev/null; then
   echo -e "${RED}Error: kubectl is not configured or cluster is not accessible${NC}"
   echo "Please ensure AKS cluster is deployed and kubectl is configured"
   exit 1
 fi
 
-echo -e "${GREEN}✓ kubectl is configured and cluster is accessible${NC}"
+ensure_correct_kubectl_context "$(dirname "$0")" || exit 1
 echo ""
 
 # -----------------------------------------------------------------------------

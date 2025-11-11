@@ -32,17 +32,14 @@ variable "location" {
   default     = "uksouth"
 }
 
-variable "cluster_name" {
-  description = "The name of the AKS cluster"
-  type        = string
-  default     = "aks-vault-cluster"
-}
-
-variable "dns_prefix" {
-  description = "DNS prefix for the AKS cluster"
+variable "cluster_name_prefix" {
+  description = "Prefix for the AKS cluster name (a unique suffix will be automatically appended to ensure global uniqueness)"
   type        = string
   default     = "aks-vault"
 }
+
+# Note: dns_prefix is automatically derived from cluster_name_prefix + unique suffix
+# No separate variable needed - see locals in main.tf
 
 variable "kubernetes_version" {
   description = "Kubernetes version for the AKS cluster"

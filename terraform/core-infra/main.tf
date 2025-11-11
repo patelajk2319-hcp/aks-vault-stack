@@ -1,4 +1,3 @@
-
 resource "azurerm_resource_group" "aks_rg" {
   name     = var.resource_group_name
   location = var.location
@@ -10,7 +9,7 @@ resource "azurerm_resource_group" "aks_rg" {
 module "vnet" {
   source = "./modules/vnet"
 
-  cluster_name              = var.cluster_name
+  cluster_name              = local.cluster_name
   location                  = azurerm_resource_group.aks_rg.location
   resource_group_name       = azurerm_resource_group.aks_rg.name
   vnet_address_space        = var.vnet_address_space
@@ -21,7 +20,7 @@ module "vnet" {
 module "logs" {
   source = "./modules/logs"
 
-  cluster_name        = var.cluster_name
+  cluster_name        = local.cluster_name
   location            = azurerm_resource_group.aks_rg.location
   resource_group_name = azurerm_resource_group.aks_rg.name
   log_retention_days  = var.log_retention_days
@@ -32,10 +31,10 @@ module "aks" {
   source = "./modules/aks"
 
   # Basic cluster configuration
-  cluster_name        = var.cluster_name
+  cluster_name        = local.cluster_name
   location            = azurerm_resource_group.aks_rg.location
   resource_group_name = azurerm_resource_group.aks_rg.name
-  dns_prefix          = var.dns_prefix
+  dns_prefix          = local.dns_prefix
   kubernetes_version  = var.kubernetes_version
   tenant_id           = "56f775a3-2540-4f05-ab58-72cd72d17d3e"
 
@@ -71,7 +70,7 @@ module "aks" {
 module "postgresql" {
   source = "./modules/postgresql"
 
-  server_name               = "${var.cluster_name}-pg"
+  server_name               = "${local.cluster_name}-pg"
   resource_group_name       = azurerm_resource_group.aks_rg.name
   location                  = azurerm_resource_group.aks_rg.location
   admin_username            = var.postgres_admin_username
