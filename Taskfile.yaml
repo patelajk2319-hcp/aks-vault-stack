@@ -19,6 +19,7 @@
 #     task audit-logs   - Query Vault audit logs (default: last 10 records)
 #     task audit-logs limit=20 - Query audit logs (last 20 records per section)
 #     task revoke path=<lease_path> - Revoke a database credential lease
+#     task delete-k8s-secret - Delete the Kubernetes secret created by VSO
 #     task psql username=<user> password=<pass> - Connect to PostgreSQL
 #
 #   Cleanup:
@@ -128,6 +129,11 @@ tasks:
     desc: List all services in Vault namespace
     cmds:
       - kubectl get svc -n {{.NAMESPACE}}
+
+  delete-k8s-secret:
+    desc: Delete the Kubernetes secret created by Vault Secrets Operator
+    cmds:
+      - kubectl delete secret postgres-dynamic-creds-wrkld1 -n {{.NAMESPACE}} --ignore-not-found
 
   # ---------------------------------------------------------------------------
   # Cleanup Tasks
