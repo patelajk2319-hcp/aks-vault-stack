@@ -16,9 +16,9 @@
 #     task port-forward - Start port forwarding to Vault
 #     task unseal       - Unseal Vault + port-forward (use after pod restarts)
 #     task info         - Display connection information and credentials
-#     task audit-logs   - Query Vault audit logs (default: last 10 records)
-#     task audit-logs limit=20 - Query audit logs (last 20 records per section)
-#     task audit-logs-raw - Export audit logs as raw JSON to data/dynamic-raw-json.json
+#     task audit-logs   - Export main audit logs as raw JSON to data/audit-logs.json
+#     task db-logs      - Query database credential audit logs and export to data/db-logs.json (default: last 10 records)
+#     task db-logs limit=20 - Query database audit logs with custom limit (last 20 records per section)
 #     task revoke path=<lease_path> - Revoke a database credential lease
 #     task delete-k8s-secret - Delete the Kubernetes secret created by VSO
 #     task psql username=<user> password=<pass> - Connect to PostgreSQL
@@ -116,6 +116,11 @@ tasks:
     desc: View VSO logs
     cmds:
       - kubectl logs -n {{.NAMESPACE}} -l app.kubernetes.io/name=vault-secrets-operator --tail=100 -f
+  
+  revoke:
+    desc: Revoke a database credential lease
+    cmds:
+      - NAMESPACE={{.NAMESPACE}} ./scripts/tools/revoke_lease_db.sh "{{.path}}"
 
   # ---------------------------------------------------------------------------
   # Kubernetes Operations
@@ -162,21 +167,16 @@ tasks:
       - NAMESPACE={{.NAMESPACE}} ./scripts/tools/info.sh
 
   audit-logs:
-    desc: Query Vault audit logs for credential lifecycle events (limit={{.limit | default "10"}})
-    aliases: [logs-audit]
+    desc: Export main Vault audit logs as raw JSON to data/audit-logs.json
     cmds:
-      - NAMESPACE={{.NAMESPACE}} LIMIT={{.limit | default "10"}} ./scripts/tools/audit_query.sh
+      - NAMESPACE={{.NAMESPACE}} ./scripts/tools/audit-logs-data.sh
 
-  audit-logs-raw:
-    desc: Export Vault audit logs as raw JSON to data/dynamic-raw-json.json
-    aliases: [logs-raw, raw]
+  db-logs:
+    desc: Query database credential audit logs and export to data/db-logs.json (limit={{.limit | default "10"}})
+    aliases: [logs-db, database-logs]
     cmds:
-      - NAMESPACE={{.NAMESPACE}} ./scripts/tools/audit_query_raw.sh
+      - NAMESPACE={{.NAMESPACE}} LIMIT={{.limit | default "10"}} ./scripts/tools/db-logs-data.sh
 
-  revoke:
-    desc: Revoke a database credential lease
-    cmds:
-      - NAMESPACE={{.NAMESPACE}} ./scripts/tools/revoke_lease_db.sh "{{.path}}"
 
   # ---------------------------------------------------------------------------
   # PostgreSQL Connection

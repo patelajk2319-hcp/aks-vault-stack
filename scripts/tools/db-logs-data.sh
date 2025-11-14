@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # =============================================================================
-# Query Vault Audit Logs
-# Extracts database credential lifecycle events from Vault audit logs
+# Query Database Credential Audit Logs
+# Extracts and displays database credential lifecycle events
+# Exports raw JSON to db-logs.json
 # =============================================================================
 
 set -euo pipefail
@@ -11,13 +12,18 @@ source "$(dirname "$0")/../lib/colors.sh"
 
 NAMESPACE="${NAMESPACE:-vault}"
 LIMIT="${LIMIT:-10}"
+OUTPUT_DIR="$(dirname "$0")/../../data"
+OUTPUT_FILE="$OUTPUT_DIR/db-logs.json"
 
-echo -e "${BLUE}=== Vault Audit Log Query (last ${LIMIT} records per section) ===${NC}"
+# Create data directory if it doesn't exist
+mkdir -p "$OUTPUT_DIR"
+
+echo -e "${BLUE}=== Database Credential Audit Log Query (last ${LIMIT} records per section) ===${NC}"
 echo ""
 
-# Copy audit log from Vault pod
-echo -e "${BLUE}Fetching audit logs...${NC}"
-kubectl exec -n "$NAMESPACE" vault-0 -- cat /vault/data/audit.log > /tmp/vault-audit.log 2>/dev/null
+# Copy database audit log from Vault pod
+echo -e "${BLUE}Fetching database audit logs...${NC}"
+kubectl exec -n "$NAMESPACE" vault-0 -- cat /vault/data/audit_database.log > /tmp/vault-audit.log 2>/dev/null
 
 # -----------------------------------------------------------------------------
 # Database Credential Creation Events
@@ -120,6 +126,13 @@ else
 fi
 
 echo ""
+
+# -----------------------------------------------------------------------------
+# Export Raw JSON Data
+# -----------------------------------------------------------------------------
+
+# Create JSON array with all database audit log entries (silent export)
+jq -s '.' /tmp/vault-audit.log > "$OUTPUT_FILE"
 
 # Clean up
 rm -f /tmp/vault-audit.log

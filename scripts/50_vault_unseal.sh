@@ -27,7 +27,7 @@ fi
 echo -e "${BLUE}Found vault-init.json${NC}"
 echo ""
 
-UNSEAL_KEY=$(cat vault-init.json | jq -r '.unseal_keys_b64[0]')
+UNSEAL_KEY=$(jq -r '.unseal_keys_b64[0]' vault-init.json)
 
 VAULT_PODS=$(kubectl get pods -n "$NAMESPACE" -l app.kubernetes.io/name=vault -o jsonpath='{.items[*].metadata.name}')
 

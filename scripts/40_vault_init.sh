@@ -53,12 +53,12 @@ echo ""
 echo -e "${GREEN}✓ Vault initialised successfully${NC}"
 echo ""
 echo -e "${GREEN}Vault Credentials:${NC}"
-cat vault-init.json | jq -r '"Root Token: " + .root_token'
-cat vault-init.json | jq -r '"Unseal Key: " + .unseal_keys_b64[0]'
+jq -r '"Root Token: " + .root_token' vault-init.json
+jq -r '"Unseal Key: " + .unseal_keys_b64[0]' vault-init.json
 echo ""
 
 # Save root token to .env
-ROOT_TOKEN=$(cat vault-init.json | jq -r '.root_token')
+ROOT_TOKEN=$(jq -r '.root_token' vault-init.json)
 
 # Create or update .env file
 if [ ! -f .env ]; then
@@ -90,7 +90,7 @@ echo -e "${GREEN}✓ Root token saved to .env${NC}"
 echo ""
 
 echo -e "${BLUE}Unsealing Vault replicas...${NC}"
-UNSEAL_KEY=$(cat vault-init.json | jq -r '.unseal_keys_b64[0]')
+UNSEAL_KEY=$(jq -r '.unseal_keys_b64[0]' vault-init.json)
 
 VAULT_PODS=$(kubectl get pods -n "$NAMESPACE" -l app.kubernetes.io/name=vault -o jsonpath='{.items[*].metadata.name}')
 
