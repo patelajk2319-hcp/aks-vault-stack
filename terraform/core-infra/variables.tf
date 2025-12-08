@@ -92,7 +92,7 @@ variable "system_node_count" {
 variable "system_node_vm_size" {
   description = "VM size for system nodes"
   type        = string
-  default     = "Standard_B2s"
+  default     = "Standard_D2pds_v6"
 }
 
 variable "system_node_min_count" {
@@ -128,7 +128,7 @@ variable "user_node_count" {
 variable "user_node_vm_size" {
   description = "VM size for user nodes"
   type        = string
-  default     = "Standard_B2s"
+  default     = "Standard_D2pds_v6"
 }
 
 variable "user_node_min_count" {

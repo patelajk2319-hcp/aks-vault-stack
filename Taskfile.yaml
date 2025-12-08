@@ -43,7 +43,7 @@ tasks:
     desc: Login to Azure with tenant
     aliases: [login]
     cmds:
-      - az login --tenant 56f775a3-2540-4f05-ab58-72cd72d17d3e
+      - az login --tenant 237fbc04-c52a-458b-af97-eaf7157c0cd4
 
   # ---------------------------------------------------------------------------
   # Main Deployment Tasks

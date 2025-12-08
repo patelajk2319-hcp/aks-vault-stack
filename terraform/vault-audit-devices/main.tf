@@ -33,4 +33,5 @@ resource "vault_audit" "database" {
   }
 
   description = "File-based audit device for database credential operations"
+  
 }

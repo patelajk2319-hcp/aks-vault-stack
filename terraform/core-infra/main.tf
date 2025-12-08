@@ -36,7 +36,7 @@ module "aks" {
   resource_group_name = azurerm_resource_group.aks_rg.name
   dns_prefix          = local.dns_prefix
   kubernetes_version  = var.kubernetes_version
-  tenant_id           = "56f775a3-2540-4f05-ab58-72cd72d17d3e"
+  tenant_id           = var.tenant_id
 
   # Network configuration - integrates with the VNet module
   subnet_id      = module.vnet.subnet_id

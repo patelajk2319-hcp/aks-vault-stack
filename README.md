@@ -71,11 +71,14 @@ task init
 # Unseal Vault
 task unseal
 
+# Enable Audit Logs
+task audit
+
 # Deploy Vault Secrets Operator
 task vso
 
-# Configure dynamic PostgreSQL credentials
-task dynamic
+# Deploy Workload
+task wkd
 
 # Display connection information
 task info
