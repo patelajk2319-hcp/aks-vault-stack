@@ -32,6 +32,8 @@
 
 version: '3'
 
+dotenv: ['.env']
+
 vars:
   NAMESPACE: vault
   VAULT_POD: vault-0
@@ -42,10 +44,12 @@ tasks:
   # ---------------------------------------------------------------------------
 
   azure-login:
-    desc: Login to Azure with tenant
+    desc: Login to Azure with tenant and subscription
     aliases: [login]
     cmds:
-      - az login --tenant 237fbc04-c52a-458b-af97-eaf7157c0cd4
+      - echo "" | az login --tenant ${ARM_TENANT_ID}
+      - az account set --subscription ${ARM_SUBSCRIPTION_ID}
+      - az account show --output table
 
   # ---------------------------------------------------------------------------
   # Main Deployment Tasks
