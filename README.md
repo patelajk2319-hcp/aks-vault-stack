@@ -123,6 +123,10 @@ Run `task --list` to see all available commands.
 - **VSO**: Vault Secrets Operator for Kubernetes-native secret injection
 - **JWT Auth**: Workload identity using AKS OIDC issuer
 
+## Documentation
+
+- **[Vault Logging Guide](docs/vault-logging.md)** - Comprehensive guide to audit logs vs operational logs
+
 ## Troubleshooting
 
 ### PostgreSQL Connection Hangs or Times Out

@@ -57,6 +57,8 @@ echo -e "${BLUE}Credential Metadata:${NC}"
 
 CREATION_TIME=$(kubectl get secret "$SECRET_NAME" -n "$NAMESPACE" -o jsonpath='{.metadata.creationTimestamp}')
 LAST_RENEWAL_TIMESTAMP=$(kubectl get vaultdynamicsecret "$VDS_NAME" -n "$NAMESPACE" -o jsonpath='{.status.lastRenewalTime}' 2>/dev/null)
+LEASE_ID=$(kubectl get vaultdynamicsecret "$VDS_NAME" -n "$NAMESPACE" -o jsonpath='{.status.secretLease.id}' 2>/dev/null)
+LEASE_DURATION=$(kubectl get vaultdynamicsecret "$VDS_NAME" -n "$NAMESPACE" -o jsonpath='{.status.secretLease.duration}' 2>/dev/null)
 
 if [ -n "$LAST_RENEWAL_TIMESTAMP" ]; then
   LAST_REFRESH=$(date -r "$LAST_RENEWAL_TIMESTAMP" '+%Y-%m-%d %H:%M:%S %Z' 2>/dev/null || echo "N/A")
@@ -66,6 +68,10 @@ fi
 
 echo "  Created: ${CREATION_TIME}"
 echo "  Last Refresh: ${LAST_REFRESH}"
+if [ -n "$LEASE_ID" ]; then
+  echo "  Lease ID: ${LEASE_ID}"
+  echo "  Lease Duration: ${LEASE_DURATION}s"
+fi
 echo ""
 
 echo -e "${YELLOW}Note: Credentials are dynamically generated and rotate every 5 minutes${NC}"

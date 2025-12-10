@@ -52,6 +52,10 @@ server:
     config: |
       ui = true
 
+      # Log level: trace, debug, info, warn, error
+      # Default is info - set to debug for detailed operational logs
+      log_level = "info"
+
       listener "tcp" {
         tls_disable = 1
         address = "[::]:8200"

@@ -19,6 +19,8 @@
 #     task audit-logs   - Export main audit logs as raw JSON to data/audit-logs.json
 #     task db-logs      - Query database credential audit logs and export to data/db-logs.json (default: last 10 records)
 #     task db-logs limit=20 - Query database audit logs with custom limit (last 20 records per section)
+#     task operational-logs-db - View Vault operational logs filtered for database operations (default: last 100 lines)
+#     task operational-logs-db lines=500 - View operational logs with custom line count
 #     task revoke path=<lease_path> - Revoke a database credential lease
 #     task delete-k8s-secret - Delete the Kubernetes secret created by VSO
 #     task psql username=<user> password=<pass> - Connect to PostgreSQL
@@ -169,13 +171,19 @@ tasks:
   audit-logs:
     desc: Export main Vault audit logs as raw JSON to data/audit-logs.json
     cmds:
-      - NAMESPACE={{.NAMESPACE}} ./scripts/tools/audit-logs-data.sh
+      - NAMESPACE={{.NAMESPACE}} ./scripts/logs/audit-logs-data.sh
 
   db-logs:
     desc: Query database credential audit logs and export to data/db-logs.json (limit={{.limit | default "10"}})
     aliases: [logs-db, database-logs]
     cmds:
-      - NAMESPACE={{.NAMESPACE}} LIMIT={{.limit | default "10"}} ./scripts/tools/db-logs-data.sh
+      - NAMESPACE={{.NAMESPACE}} LIMIT={{.limit | default "10"}} ./scripts/logs/db-logs-data.sh
+
+  operational-logs-db:
+    desc: View Vault operational logs filtered for database operations (lines={{.lines | default "100"}})
+    aliases: [op-logs-db, oplogs-db]
+    cmds:
+      - NAMESPACE={{.NAMESPACE}} LINES={{.lines | default "100"}} ./scripts/logs/operational-logs-db.sh
 
 
   # ---------------------------------------------------------------------------
